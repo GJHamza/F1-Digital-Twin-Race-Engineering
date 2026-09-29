@@ -1,0 +1,62 @@
+@startuml POST_G5_3_GLOBAL_ARCHITECTURE
+!theme plain
+skinparam componentStyle uml2
+skinparam backgroundColor #FFFFFF
+skinparam packageBackgroundColor #F8F9FA
+skinparam packageBorderColor #CED4DA
+
+title F1 Digital Twin — Global Architecture (Post-G.5.3 Complete Packaging)
+
+package "Layer 1: Telemetry Generation & Web Cockpit" {
+    [Physics Engine & 3D Simulation\n(Three.js / WebGL)] as Physics
+    [Flask Web Server\n(Port 5000 / Gunicorn WSGI)] as Flask
+    [React 19 Strategy Cockpit\n(Vite Build SPA)] as React
+}
+
+package "Layer 2: Real-Time Streaming & Storage" {
+    [Kafka Broker\n(f1_telemetry topic)] as Kafka
+    [Kafka Data Engine Consumer\n(Background Worker)] as DataEngine
+    database "MongoDB Atlas\n(Cloud Database)" as Mongo
+}
+
+package "Layer 3: Machine Learning & Real-Time ML Bridge" {
+    [G.4.2 Anomaly Detector\n(Isolation Forest)] as Anomaly
+    [G.4.3 Lap Time Predictor\n(Ridge Regression)] as LapPredictor
+    [G.4.4 Tire Degradation Model\n(Exponential Decay)] as TireModel
+    [G.5.2 Real-Time ML Bridge\n(Kafka -> f1_ml_signals)] as MLBridge
+}
+
+package "Layer 4: Strategy Engineering & Analytics Dashboard" {
+    [G.4.5 Strategy Optimizer\n(Deterministic Race Engine)] as Optimizer
+    [G.4.6 Strategy Dashboard Adapter\n(Streamlit App / Port 8501)] as Dashboard
+    [MinIO Object Storage / Data Lake\n(Bronze / Silver / Gold)] as DataLake
+}
+
+package "Layer 5: Production & Cloud Deployment Packaging (G.5.3)" {
+    [Dockerfile.api] as DockerAPI
+    [Dockerfile.dashboard] as DockerDash
+    [Dockerfile.ml_bridge] as DockerML
+    [Dockerfile.data_engine] as DockerEngine
+    [docker-compose.prod.yml] as Compose
+    [GitHub Actions CI Workflow] as CI
+}
+
+Physics --> Flask : REST Telemetry Payload
+React --> Flask : HTTP Cockpit View
+Flask --> Kafka : Publish f1_telemetry
+Kafka --> DataEngine : Consume f1_telemetry
+DataEngine --> Mongo : Document Ingestion
+Kafka --> MLBridge : Consume f1_telemetry
+MLBridge --> Anomaly : Inference
+MLBridge --> LapPredictor : Inference
+MLBridge --> TireModel : Inference
+MLBridge --> Kafka : Publish f1_ml_signals
+Optimizer --> Dashboard : Immutable Ranking/Sim Objects
+Dashboard --> DataLake : Parquet Storage
+Compose --> DockerAPI : Orchestrates
+Compose --> DockerDash : Orchestrates
+Compose --> DockerML : Orchestrates
+Compose --> DockerEngine : Orchestrates
+CI --> Compose : Syntax & Build Verification
+
+@enduml

@@ -1,0 +1,56 @@
+@startuml G6_1_PROFESSIONAL_FINALIZATION_ARCHITECTURE
+!theme plain
+skinparam componentStyle uml2
+skinparam backgroundColor #FFFFFF
+skinparam packageBackgroundColor #F8F9FA
+skinparam packageBorderColor #CED4DA
+
+title F1 Digital Twin — G.6.1 Professional Finalization Architecture Overview
+
+package "1. Telemetry & Simulation Layer" {
+    [Physics Engine & 3D Simulation\n(Three.js / WebGL / Flask)] as Sim
+    [Telemetry Schema Validator\n(JSON Schema)] as Schema
+}
+
+package "2. Data Engineering & Streaming Layer" {
+    [Kafka Telemetry Topic\n(f1_telemetry)] as TelemetryTopic
+    [Data Engine Consumer\n(Kafka -> MongoDB Atlas)] as Ingestion
+    database "MongoDB Atlas\n(Cloud Document Store)" as Mongo
+    [MinIO Object Storage / Data Lake\n(Bronze / Silver / Gold Parquet)] as DataLake
+}
+
+package "3. Real-Time Machine Learning Bridge" {
+    [G.4.2 Anomaly Detector\n(Isolation Forest)] as Anomaly
+    [G.4.3 Lap Time Predictor\n(Ridge Regression)] as LapPredictor
+    [G.4.4 Tire Degradation Model\n(Exponential Decay)] as TireModel
+    [Kafka ML Signal Topic\n(f1_ml_signals)] as SignalTopic
+}
+
+package "4. Race Strategy Engineering & Dashboard" {
+    [G.4.5 Strategy Optimizer\n(Monte Carlo / Top-K Ranking)] as StrategyEngine
+    [G.4.6 Strategy Dashboard\n(Streamlit Analytics App)] as StrategyUI
+    [React 19 Telemetry Cockpit\n(Vite Build SPA)] as CockpitUI
+}
+
+package "5. Packaging & Production Infrastructure" {
+    [Dockerfile.api / Dockerfile.dashboard] as Dockerfiles
+    [docker-compose.prod.yml] as Compose
+    [GitHub Actions CI/CD Pipeline] as CI
+}
+
+Sim --> Schema : Validate Payload
+Sim --> TelemetryTopic : Stream Telemetry
+TelemetryTopic --> Ingestion : Consume
+Ingestion --> Mongo : Persist Documents
+TelemetryTopic --> Anomaly : Stream Evaluation
+TelemetryTopic --> LapPredictor : Stream Evaluation
+TelemetryTopic --> TireModel : Stream Evaluation
+Anomaly --> SignalTopic : Publish Signals
+LapPredictor --> SignalTopic : Publish Signals
+TireModel --> SignalTopic : Publish Signals
+StrategyEngine --> StrategyUI : Immutable Ranking / Sim Objects
+StrategyUI --> DataLake : Parquet Storage
+Compose --> Dockerfiles : Orchestrates Stack
+CI --> Compose : Validates Syntax & Builds
+
+@enduml

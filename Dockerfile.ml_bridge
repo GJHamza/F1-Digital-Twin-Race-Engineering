@@ -1,0 +1,24 @@
+# Dockerfile.ml_bridge for Real-Time ML Bridge Consumer (G.5.2)
+FROM python:3.10-slim
+
+WORKDIR /app
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app/code
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY code/ /app/code/
+COPY schema/ /app/schema/
+COPY data_lake/ /app/data_lake/
+
+RUN useradd -m -u 1000 f1user && chown -R f1user:f1user /app
+USER f1user
+
+CMD ["python", "code/streaming/ml_bridge_consumer.py"]

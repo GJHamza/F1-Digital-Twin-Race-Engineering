@@ -1,0 +1,51 @@
+@startuml g4_5_3_race_pace_architecture
+!theme plain
+skinparam componentStyle uml2
+skinparam packageStyle rectangle
+
+title F1 Digital Twin — G.4.5.3 Race Pace / Stint Simulator Architecture
+
+package "G.4.5.2 Scenario Generation" {
+    [ScenarioGenerator] --> [Scenario] : produces
+}
+
+package "G.4.5.3 Race Pace / Stint Simulator Engine" {
+    component "Scenario Adapter\n(Scenario.to_g451_payload)" as Adapter
+    component "Race Pace Simulator\n(RacePaceSimulator)" as Simulator
+    
+    package "ML Model & Physics Services" {
+        component "G.4.3 Lap Time Model\n(PerformanceRegressionModel)" as G43Model
+        component "G.4.4 Tire Degradation Model\n(TireDegradationModel)" as G44Model
+        component "Deterministic Compound Scaling\n(CompoundModel)" as CompoundLayer
+        component "G.4.5.1 Fuel Depletion Model\n(FuelModel)" as FuelModel
+        component "G.4.5.1 Pit Stop Time-Loss Model\n(PitStop)" as PitModel
+    }
+}
+
+package "Simulation Results & Metrics" {
+    database "Lap Results (LapRecord)" as LapResults
+    database "Stint Results (StintResult)" as StintResults
+    component "Simulation Summary\n(RacePaceSimulationSummary)" as Summary
+}
+
+package "Downstream Phases" {
+    component "G.4.5.4 Strategy Constraint Validator\n& Feasibility Evaluator" as DownstreamValidator
+}
+
+[Scenario] --> Adapter : feeds scenario configuration
+Adapter --> Simulator : supplies RaceConfig, Stints, PitStops
+
+Simulator --> G43Model : 1. predict_lap_time(features_t)
+Simulator --> G44Model : 2. predict_tire_degradation(features_t)
+G44Model --> CompoundLayer : raw wear deltas
+CompoundLayer --> Simulator : compound-scaled wear deltas
+Simulator --> FuelModel : 3. consume_fuel(laps=1.0)
+Simulator --> PitModel : 4. apply_pit_time_loss(lap_t)
+
+Simulator --> LapResults : records per-lap telemetry state
+Simulator --> StintResults : aggregates stint metrics
+Simulator --> Summary : builds full race summary result
+
+Summary --> DownstreamValidator : validates constraints (G.4.5.4)
+
+@enduml

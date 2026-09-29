@@ -1,0 +1,25 @@
+CONTEXTE DU PROJET :
+Je travaille sur un projet de simulation F1 "Digital Twin". 
+L'infrastructure technique est déjà PRÊTE et TESTÉE :
+- Docker tourne avec Kafka (Port 9092) et Zookeeper.
+- Le topic 'f1_telemetry' est créé.
+- La connexion à MongoDB Atlas est fonctionnelle via un script Python (data_engine.py) qui insère les messages Kafka dans le Cloud.
+
+MON ARCHITECTURE DE DOSSIERS :
+Dossier racine /code contenant :
+- /partie1 (Simulation Web & API Pont)
+- /partie2 (Data Engineering - script actuel data_engine.py)
+- /partie3 (Atelier et Analyse)
+
+TA MISSION :
+Aide-moi à développer la PARTIE 1. J'ai besoin de :
+1. Un serveur Flask (app.py) dans /partie1 qui reçoit des requêtes POST JSON et les envoie dans le topic Kafka 'f1_telemetry'.
+2. Une page web (index.html + sketch.js) utilisant p5.js pour afficher une voiture.
+3. La voiture doit pouvoir avancer (flèche droite) et envoyer sa vitesse et un paramètre "vent" aléatoire vers le serveur Flask toutes les secondes.
+
+CONSIGNES TECHNIQUES :
+- Utilise Flask-CORS pour éviter les problèmes de requêtes entre le navigateur et Python.
+- La donnée envoyée doit être au format : {"speed": X, "wind_speed": Y, "timestamp": Z}.
+- Code de manière modulaire pour que je puisse plus tard ajouter la 3D et des graphiques.
+
+Dis-moi quand tu es prêt à générer les fichiers pour le dossier /partie1.

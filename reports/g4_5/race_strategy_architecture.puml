@@ -1,0 +1,54 @@
+@startuml Race_Strategy_Architecture
+skinparam backgroundColor #FFFFFF
+skinparam componentStyle uml2
+
+package "Data Engineering & ML Layer (G.3 - G.4.4)" {
+    [Silver Telemetry Parquet] as Silver
+    [G.4.3 Lap Time Predictor] as LapModel
+    [G.4.4 Tire Degradation Model] as TireModel
+    [G.4.2 Anomaly Detector] as AnomalyDetector
+}
+
+package "G.4.5.1 Strategy Data Foundation (Required)" {
+    [Stint & Pit Event Generator] as PitSim
+    [Tire Compound Physics Model] as CompoundModel
+    [Fuel Consumption & Mass Effect Engine] as FuelEngine
+}
+
+package "G.4.5 Core Architecture" {
+    [Scenario Builder & Permutator] as ScenarioBuilder
+    [Race Pace & Stint Simulator] as StintSim
+    [Constraint Validator] as ConstraintChecker
+    [Strategy Optimization Engine] as Optimizer
+    [Strategy Evaluator & Ranker] as Ranker
+}
+
+package "Outputs & Storage" {
+    [strategy_recommendations.parquet] as OutParquet
+    [strategy_metrics.json] as OutJSON
+    [Race Strategy Dashboard] as Dashboard
+}
+
+Silver --> LapModel
+Silver --> TireModel
+Silver --> AnomalyDetector
+
+PitSim --> CompoundModel
+FuelEngine --> CompoundModel
+CompoundModel --> ScenarioBuilder
+
+LapModel --> StintSim
+TireModel --> StintSim
+AnomalyDetector --> ConstraintChecker
+
+ScenarioBuilder --> StintSim
+StintSim --> ConstraintChecker
+ConstraintChecker --> Optimizer
+Optimizer --> Ranker
+
+Ranker --> OutParquet
+Ranker --> OutJSON
+OutParquet --> Dashboard
+OutJSON --> Dashboard
+
+@endluml

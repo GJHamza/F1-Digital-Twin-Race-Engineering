@@ -1,0 +1,115 @@
+@startuml G4_5_1_Strategy_Foundation
+!theme plain
+skinparam backgroundColor white
+skinparam handwritten false
+skinparam class {
+    BackgroundColor white
+    ArrowColor #2c3e50
+    BorderColor #2c3e50
+}
+
+package "G.4.5.1 Strategy Foundation" {
+
+    class RaceConfig {
+        + race_id: String
+        + total_laps: int
+        + starting_fuel: float
+        + initial_compound: String
+        + pit_stop_loss_sec: float
+        + max_tire_wear: float
+        + min_stint_laps: int
+        + to_dict(): Dict
+    }
+
+    class CompoundModel {
+        + compound: String
+        + grip_factor: float
+        + degradation_factor: float
+        + wear_multiplier: float
+        + warmup_laps: int
+        + temp_optimum_c: float
+    }
+
+    class Stint {
+        + stint_id: String
+        + stint_number: int
+        + compound: String
+        + start_lap: int
+        + end_lap: int
+        + starting_fuel: float
+        + ending_fuel: float
+        + starting_tire_wear: float
+        + ending_tire_wear: float
+        + stint_laps: int
+        + fuel_consumed: float
+    }
+
+    class PitStop {
+        + pit_stop_id: String
+        + pit_lap: int
+        + duration_sec: float
+        + compound_before: String
+        + compound_after: String
+        + stint_before: int
+        + stint_after: int
+    }
+
+    class FuelModel {
+        + starting_fuel: float
+        + fuel_consumption_rate: float
+        + consume_fuel(laps: float): FuelState
+    }
+
+    class FuelState {
+        + starting_fuel: float
+        + fuel_remaining: float
+        + fuel_consumed: float
+        + fuel_consumption_rate: float
+    }
+
+    class StrategyState {
+        + race_id: String
+        + current_lap: int
+        + current_stint: int
+        + current_compound: String
+        + fuel_remaining: float
+        + tire_wear: Dict[String, float]
+        + pit_stop_count: int
+        + vehicle_status: VehicleStatus
+        + transition_status(target: VehicleStatus)
+        + to_telemetry_extension(): Dict
+    }
+
+    enum VehicleStatus {
+        ON_TRACK
+        PIT_ENTRY
+        IN_PIT
+        PIT_EXIT
+    }
+
+    class StrategySimulator {
+        + config: RaceConfig
+        + simulate_strategy(stints, pit_stops): SimulationResult
+    }
+
+    class SimulationResult {
+        + race_id: String
+        + total_laps: int
+        + total_race_time_sec: float
+        + pit_stop_count: int
+        + is_feasible: bool
+        + warnings: List[String]
+    }
+
+    StrategySimulator --> RaceConfig : configures
+    StrategySimulator --> SimulationResult : produces
+    SimulationResult --> StrategyState : contains lap snapshots
+    StrategyState --> VehicleStatus : tracks
+    Stint --> CompoundModel : references
+    PitStop --> CompoundModel : transitions compound
+    FuelModel --> FuelState : yields state
+    StrategySimulator --> Stint : evaluates schedule
+    StrategySimulator --> PitStop : evaluates events
+}
+
+@enduml

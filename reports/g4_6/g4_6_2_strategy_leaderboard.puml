@@ -1,0 +1,43 @@
+@startuml g4_6_2_strategy_leaderboard
+!theme plain
+skinparam componentStyle uml2
+skinparam packageStyle rectangle
+
+title F1 Digital Twin — G.4.6.2 Strategy Leaderboard Presentation Architecture
+
+package "Upstream Strategy Intelligence (G.4.5.1 – G.4.5.5)" {
+    component "Strategy Optimizer\n(StrategyOptimizer)" as Opt
+    database "Ranking Result\n(RankingResult)" as RankingRes
+}
+
+package "G.4.6.1 Adapter Layer" {
+    component "Strategy Dashboard Adapter\n(StrategyDashboardAdapter)" as Adapter
+}
+
+package "G.4.6.2 Strategy Leaderboard (Presentation UI)" {
+    component "Leaderboard View Data Preparer\n(prepare_leaderboard_view_data)" as ViewPrep
+    component "Leader Summary Metric Cards" as SummaryUI
+    component "View Filter Bar\n(Rank, Search, Pit Stops, Warnings)" as FilterUI
+    component "Streamlit Leaderboard Table\n(st.dataframe)" as TableUI
+    component "Scenario Selector\n(st.session_state['selected_scenario_id'])" as SelectorUI
+}
+
+Opt --> RankingRes : Authoritative Top-K RankingResult
+RankingRes --> Adapter : Immutable input contract
+Adapter --> ViewPrep : DataFrames & metadata
+
+ViewPrep --> SummaryUI : Renders leader scenario ID, race time, valid count
+ViewPrep --> FilterUI : View-level filtering (NO re-ranking, NO mutation)
+FilterUI --> TableUI : Filters displayed rows only
+TableUI --> SelectorUI : User selects scenario ID for detailed inspection
+
+note right of ViewPrep
+  <b>PURE PRESENTATION PRINCIPLES:</b>
+  - Zero re-ranking / Zero score recalculation
+  - Zero simulation re-execution
+  - Zero constraint re-validation
+  - Zero domain object mutation
+  - Original leader remains authoritative even if filtered out of view
+end note
+
+@enduml

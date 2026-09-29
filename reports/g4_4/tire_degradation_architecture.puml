@@ -1,0 +1,92 @@
+@startuml Tire_Degradation_Architecture
+skinparam backgroundColor #FFFFFF
+skinparam componentStyle uml2
+
+package "Telemetry Parsing & Inspection" {
+    [Silver Telemetry Parquet] as Silver
+    [inspect_tire_telemetry()] as Inspection
+    [parse_wheel_arrays()] as WheelParser
+}
+
+package "Supervised Target Pairing (Horizon H=10)" {
+    [construct_tire_degradation_dataset()] as DatasetBuilder
+    [Current Wear (t)] as CurrWear
+    [Future Wear (t+10)] as FutWear
+    [Future Wear Deltas (FL, FR, RL, RR)] as Targets
+}
+
+package "Causal Feature Engineering" {
+    [compute_tire_degradation_features()] as FeatureEngine
+    [4-Wheel Wear & Temps] as FeatWheel
+    [Vehicle Dynamics & Forces] as FeatDyn
+    [Aerodynamics & Powertrain] as FeatAero
+    [Backward-Looking Rolling Rates] as FeatRoll
+}
+
+package "Data Pipeline & Preprocessing" {
+    [perform_temporal_split()] as Splitter
+    [Train Partition (70%)] as Train
+    [Validation Partition (15%)] as Val
+    [Test Partition (15%)] as Test
+    [StandardScaler (Train Fit Only)] as Scaler
+}
+
+package "Multi-Output Model Architecture" {
+    [Zero Degradation Baseline] as Base1
+    [Previous Degradation Baseline] as Base2
+    [Multi-Output RandomForestRegressor] as RF
+    [Multi-Output GradientBoostingRegressor] as GBR
+}
+
+package "Evaluation & Physical Validation" {
+    [calculate_tire_metrics()] as Metrics
+    [validate_physical_bounds()] as PhysCheck
+    [Model Selection on Validation] as Selector
+    [tire_degradation_predictions Parquet] as OutputParquet
+    [metrics.json & metadata.json] as OutputJSON
+    [Model Artifact (best_model.joblib)] as Artifacts
+}
+
+Silver --> Inspection
+Silver --> WheelParser
+WheelParser --> DatasetBuilder
+
+DatasetBuilder --> CurrWear
+DatasetBuilder --> FutWear
+DatasetBuilder --> Targets
+
+Targets --> FeatureEngine
+FeatureEngine --> FeatWheel
+FeatureEngine --> FeatDyn
+FeatureEngine --> FeatAero
+FeatureEngine --> FeatRoll
+
+FeatWheel --> Splitter
+FeatDyn --> Splitter
+FeatAero --> Splitter
+FeatRoll --> Splitter
+
+Splitter --> Train
+Splitter --> Val
+Splitter --> Test
+
+Train --> Scaler
+Scaler --> RF
+Scaler --> GBR
+
+Train --> Base1
+Train --> Base2
+
+RF --> Metrics
+GBR --> Metrics
+Base1 --> Metrics
+Base2 --> Metrics
+
+Val --> Metrics
+Metrics --> Selector
+Selector --> PhysCheck
+PhysCheck --> OutputParquet
+PhysCheck --> OutputJSON
+Selector --> Artifacts
+
+@enduml

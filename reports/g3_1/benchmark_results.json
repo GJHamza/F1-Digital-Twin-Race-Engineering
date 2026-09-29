@@ -1,0 +1,89 @@
+{
+  "small": {
+    "bronze": {
+      "total_records": 1500,
+      "files_written": 5,
+      "output_dir": "data/processed/small\\bronze\\telemetry",
+      "duration_sec": 0.151
+    },
+    "silver": {
+      "total_processed": 1500,
+      "valid_count": 1500,
+      "quarantine_count": 0,
+      "duplicate_count": 0,
+      "silver_written_count": 1500,
+      "duration_sec": 0.635
+    },
+    "gold": {
+      "gold_datasets_created": 5,
+      "counts": {
+        "lap_performance": 25,
+        "tire_performance": 25,
+        "fuel_performance": 5,
+        "aero_performance": 25,
+        "anomaly_summary": 0
+      },
+      "output_dir": "data/processed/small\\gold",
+      "duration_sec": 0.238
+    },
+    "total_duration_sec": 1.044
+  },
+  "medium": {
+    "bronze": {
+      "total_records": 60000,
+      "files_written": 50,
+      "output_dir": "data/processed/medium\\bronze\\telemetry",
+      "duration_sec": 4.607
+    },
+    "silver": {
+      "total_processed": 60000,
+      "valid_count": 60000,
+      "quarantine_count": 0,
+      "duplicate_count": 0,
+      "silver_written_count": 60000,
+      "duration_sec": 12.718
+    },
+    "gold": {
+      "gold_datasets_created": 5,
+      "counts": {
+        "lap_performance": 1000,
+        "tire_performance": 1000,
+        "fuel_performance": 50,
+        "aero_performance": 1000,
+        "anomaly_summary": 0
+      },
+      "output_dir": "data/processed/medium\\gold",
+      "duration_sec": 5.683
+    },
+    "total_duration_sec": 23.736
+  },
+  "idempotency": {
+    "bronze": {
+      "total_records": 60000,
+      "files_written": 50,
+      "output_dir": "data/processed/medium\\bronze\\telemetry",
+      "duration_sec": 4.096
+    },
+    "silver": {
+      "total_processed": 60000,
+      "valid_count": 60000,
+      "quarantine_count": 0,
+      "duplicate_count": 0,
+      "silver_written_count": 60000,
+      "duration_sec": 12.217
+    },
+    "gold": {
+      "gold_datasets_created": 5,
+      "counts": {
+        "lap_performance": 1000,
+        "tire_performance": 1000,
+        "fuel_performance": 50,
+        "aero_performance": 1000,
+        "anomaly_summary": 0
+      },
+      "output_dir": "data/processed/medium\\gold",
+      "duration_sec": 5.61
+    },
+    "total_duration_sec": 22.503
+  }
+}

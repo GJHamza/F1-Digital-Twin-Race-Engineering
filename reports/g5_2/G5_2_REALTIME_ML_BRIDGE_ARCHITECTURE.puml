@@ -1,0 +1,62 @@
+@startuml G5_2_REALTIME_ML_BRIDGE_ARCHITECTURE
+!theme vibrant
+title F1 Digital Twin — Real-Time Stream & ML Bridge Architecture Map (G.5.2)
+
+skinparam componentStyle uml2
+skinparam rectangleStyle round
+
+package "Ingress & Streaming Layer" #F4ECF7 {
+    [Three.js Simulator / Client] as Simulator #LightBlue
+    [Flask API Gateway (/telemetry)] as FlaskAPI #LightGreen
+    [Kafka Ingress Topic: f1_telemetry] as KafkaIngress #Yellow
+    [Data Engine Consumer] as DataEngine #Yellow
+    [MongoDB Telemetry Persistence] as MongoDB #Yellow
+}
+
+package "Real-Time ML Bridge Service (Proposed G.5.2)" #FEF9E7 {
+    [Kafka Consumer (Group: f1-ml-bridge)] as BridgeConsumer #LightGreen
+    [Schema V1 Validation Gate] as SchemaGate #LightGreen
+    [In-Memory Session State Store] as StateStore #LightGreen
+    
+    package "Online ML Evaluators (Pre-trained Artifacts)" #EAFAF1 {
+        [G.4.2 Anomaly Detector (IsolationForest)] as OnlineAnomaly #LightGreen
+        [G.4.3 Lap Time Predictor (GradientBoosting)] as OnlineLapTime #LightGreen
+        [G.4.4 Tire Degradation Horizon (Ridge)] as OnlineTireDeg #LightGreen
+    }
+
+    [Kafka Signal Producer] as SignalProducer #LightGreen
+}
+
+package "Egress & Downstream Visualization" #EBF5FB {
+    [Kafka Egress Topic: f1_ml_signals] as KafkaEgress #Yellow
+    [Streamlit Strategy Dashboard] as Dashboard #LightGreen
+}
+
+' Data Flow Connections
+Simulator --> FlaskAPI : "POST /telemetry (JSON Schema V1)"
+FlaskAPI --> KafkaIngress : "Publish Raw Telemetry"
+KafkaIngress --> DataEngine : "Consume Raw Telemetry"
+DataEngine --> MongoDB : "Persist Raw Telemetry"
+
+KafkaIngress --> BridgeConsumer : "Stream Real-Time Events"
+BridgeConsumer --> SchemaGate : "Validate Event Structure"
+SchemaGate --> StateStore : "Update Rolling Deque & Lap Accumulators"
+
+StateStore --> OnlineAnomaly : "Per-Tick Event Vector"
+StateStore --> OnlineLapTime : "Trigger on Lap Completion (No Leakage)"
+StateStore --> OnlineTireDeg : "Stint Lap History & 4-Corner Wear"
+
+OnlineAnomaly --> SignalProducer : "Anomaly Score, Severity, Top Signals"
+OnlineLapTime --> SignalProducer : "Predicted Lap Time Sec"
+OnlineTireDeg --> SignalProducer : "Remaining Stint Life Laps"
+
+SignalProducer --> KafkaEgress : "Publish Unified ML Signal Payload"
+KafkaEgress --> Dashboard : "Stream ML Diagnostics & Alert Cards"
+
+legend right
+  |<back:#LightGreen>  </back>| Hardened / Validated Component |
+  |<back:#Yellow>  </back>| Kafka & Storage Infrastructure |
+  |<back:#LightBlue>  </back>| Client Ingress Component |
+endlegend
+
+@enduml

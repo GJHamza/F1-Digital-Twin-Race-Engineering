@@ -1,0 +1,48 @@
+@startuml
+title F1 Digital Twin — Phase G.4.1 Feature Engineering & ML Dataset Architecture
+
+skinparam componentStyle uml2
+skinparam backgroundColor #FFFFFF
+
+package "Data Lake Storage" {
+  [MinIO S3A / Silver Lake\n(s3a://f1-data-lake/silver/telemetry/)] as SilverLake
+}
+
+package "Feature Extraction Engine (code/ml/features/)" {
+  [Performance Extractor\n(speed, acceleration, g_force)] as PerfExtractor
+  [Tyres Extractor\n(temps, wear, stress_index, wear_rate)] as TyreExtractor
+  [Aerodynamics Extractor\n(downforce, drag, aero_efficiency)] as AeroExtractor
+  [Powertrain Extractor\n(rpm, torque, power_kw, fuel)] as PowerExtractor
+  [Temporal Extractor\n(elapsed_time, rolling_5_stats)] as TempExtractor
+}
+
+package "Quality & Split Engine (code/ml/dataset/)" {
+  [Quality & Bounds Validator\n(schema, ranges, 0% nulls, 0 duplicates)] as Validator
+  [Temporal Split Engine\n(Chronological Sorting: 70% / 15% / 15%)] as SplitEngine
+}
+
+package "ML Feature Storage (code/ml/)" {
+  [MinIO S3A / ML Features\n(s3a://f1-data-lake/ml/features/)] as MLStorage
+  folder "Train Partition\n(train/)" as TrainPart
+  folder "Validation Partition\n(validation/)" as ValPart
+  folder "Test Partition\n(test/)" as TestPart
+}
+
+SilverLake --> PerfExtractor : Read Silver Parquet
+PerfExtractor --> TyreExtractor : Pass Feature DF
+TyreExtractor --> AeroExtractor : Pass Feature DF
+AeroExtractor --> PowerExtractor : Pass Feature DF
+PowerExtractor --> TempExtractor : Pass Feature DF (Lag-safe rolling stats)
+
+TempExtractor --> Validator : Enforce Physical Bounds & 0% Nulls
+Validator --> SplitEngine : Pass Clean ML Feature Set
+
+SplitEngine --> TrainPart : Earliest 70% Timeline
+SplitEngine --> ValPart : Intermediate 15% Timeline
+SplitEngine --> TestPart : Latest 15% Timeline
+
+TrainPart --> MLStorage
+ValPart --> MLStorage
+TestPart --> MLStorage
+
+@enduml

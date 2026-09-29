@@ -1,0 +1,75 @@
+@startuml g4_6_1_dashboard_adapter
+!theme plain
+skinparam componentStyle uml2
+skinparam packageStyle rectangle
+
+title F1 Digital Twin — G.4.6.1 Dashboard Adapter Architecture
+
+package "Upstream Strategy Intelligence (G.4.5.1 – G.4.5.5)" {
+    component "Scenario Generator\n(ScenarioGenerator)" as Gen
+    component "Race Pace Simulator\n(StrategySimulator)" as Sim
+    component "Constraint Validator\n(ConstraintValidator)" as Val
+    component "Strategy Optimizer\n(StrategyOptimizer)" as Opt
+    
+    database "Ranking Result\n(RankingResult)" as RankingRes
+    database "Simulation Results\n(SimulationResult)" as SimRes
+    database "Validation Results\n(ValidationResult)" as ValRes
+}
+
+package "G.4.6.1 Strategy Dashboard Adapter" {
+    component "Strategy Dashboard Adapter\n(StrategyDashboardAdapter)" as Adapter
+    
+    package "Read-Only View-Model Transformers" {
+        component "Leaderboard Formatter\n(leaderboard_dataframe)" as LeadFormat
+        component "Comparison Formatter\n(comparison_dataframe)" as CompFormat
+        component "Selected Strategy Formatter\n(selected_strategy_dataframe)" as SelFormat
+        component "Stint Timeline Formatter\n(stint_dataframe)" as StintFormat
+        component "Lap Telemetry Formatter\n(lap_dataframe)" as LapFormat
+        component "Validation Report Formatter\n(validation_dataframe)" as ValFormat
+    }
+}
+
+package "G.4.6 UI Layer (Streamlit Dashboard)" {
+    component "Top-K Leaderboard Table" as UILeader
+    component "Strategy Comparison View" as UIComp
+    component "Stint Gantt Timeline" as UIStint
+    component "Lap Telemetry Charts" as UILap
+    component "Validation Alert Panel" as UIVal
+}
+
+Gen --> Sim : Scenario stints & pits
+Sim --> SimRes : SimulationResult (laps, stints)
+Sim --> Val : Feasibility evaluation
+Val --> ValRes : ValidationResult (violations, valid)
+SimRes --> Opt : Simulation metrics
+ValRes --> Opt : Feasibility status
+Opt --> RankingRes : Top-K RankedStrategy list
+
+RankingRes --> Adapter : 1. Consumes immutable ranking (Mandatory)
+SimRes --> Adapter : 2. Consumes optional simulation details (Drill-down)
+ValRes --> Adapter : 3. Consumes optional validation reports (Audit)
+
+Adapter --> LeadFormat
+Adapter --> CompFormat
+Adapter --> SelFormat
+Adapter --> StintFormat
+Adapter --> LapFormat
+Adapter --> ValFormat
+
+LeadFormat --> UILeader : Pandas DataFrame
+CompFormat --> UIComp : Pandas DataFrame
+SelFormat --> UIComp : Single-row summary DataFrame
+StintFormat --> UIStint : Stint timeline DataFrame
+LapFormat --> UILap : Lap telemetry DataFrame
+ValFormat --> UIVal : Violation/warning DataFrame
+
+note right of Adapter
+  <b>READ-ONLY CONTRACT:</b>
+  - Zero input mutation
+  - Zero simulation recomputation
+  - Zero constraint revalidation
+  - Zero ranking key modification
+  - Materializes DataFrames lazily
+end note
+
+@enduml

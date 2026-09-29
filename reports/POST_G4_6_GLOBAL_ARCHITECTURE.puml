@@ -1,0 +1,90 @@
+@startuml POST_G4_6_GLOBAL_ARCHITECTURE
+!theme vibrant
+title F1 Digital Twin — End-to-End Consolidated Architecture Map (Post-G.4.6)
+
+skinparam componentStyle uml2
+skinparam rectangleStyle round
+
+package "Data Engineering Core" #EBF5FB {
+    [Telemetry / Ergast API] as RawData #LightBlue
+    [Kafka Ingestion / Streaming] as Streaming #LightBlue
+    [Data Lake / MinIO (S3)] as DataLake #Yellow
+    [Bronze Layer (Raw Storage)] as Bronze #Yellow
+    [Silver Layer (Cleaned & Parquet)] as Silver #LightGreen
+    [Gold Layer (Aggregated Analytics)] as Gold #LightGreen
+}
+
+package "Machine Learning Pipeline (Offline / Standalone)" #FEF9E7 {
+    [G.4.1 Feature Engineering] as ML_Feat #LightGreen
+    [G.4.2 Anomaly Detector (IsolationForest)] as ML_Anomaly #Yellow
+    [G.4.3 Lap Time Predictor (XGBoost/LightGBM)] as ML_Lap #Yellow
+    [G.4.4 Tire Degradation Model (Ridge/Linear)] as ML_Tire #Yellow
+}
+
+package "Strategy Core (G.4.5 Engine)" #EAFAF1 {
+    [G.4.5.1 Strategy Foundation (Domain Models)] as Strat_Found #LightGreen
+    [G.4.5.2 Scenario Builder (Grid Search)] as Strat_Scen #LightGreen
+    [G.4.5.3 Race Pace Simulator (Physics Engine)] as Strat_Sim #LightGreen
+    [G.4.5.4 Constraint Validator (F1 Regulations)] as Strat_Val #LightGreen
+    [G.4.5.5 Strategy Optimizer (Multi-Objective Pareto)] as Strat_Opt #LightGreen
+}
+
+package "Presentation Layer (G.4.6 Dashboard)" #F4ECF7 {
+    [G.4.6.1 Dashboard Adapter] as Dash_Adapt #LightGreen
+    [G.4.6.2 Strategy Leaderboard] as Dash_Lead #LightGreen
+    [G.4.6.3 Strategy Comparison] as Dash_Comp #LightGreen
+    [G.4.6.4 Stint Timeline View] as Dash_Time #LightGreen
+    [G.4.6.5 Fuel & Tire Micro-Analytics] as Dash_FT #LightGreen
+    [G.4.6.6 Details & Validation Inspection] as Dash_Det #LightGreen
+    [G.4.6.7 Streamlit App & Integrated Entrypoint] as Dash_App #LightGreen
+}
+
+package "Legacy / Real-Time Cockpit (Partie 2)" #FDEDEC {
+    [Three.js 3D Track Visualizer] as ThreeJS #Orange
+    [Flask Telemetry Bridge API] as FlaskBridge #Orange
+    [MongoDB Live Telemetry Ingest] as MongoDB #Orange
+    [React Live Cockpit Frontend] as ReactCockpit #Orange
+}
+
+' Relationships
+RawData --> Streaming
+Streaming --> DataLake
+DataLake --> Bronze
+Bronze --> Silver
+Silver --> Gold
+
+Gold --> ML_Feat
+ML_Feat --> ML_Anomaly
+ML_Feat --> ML_Lap
+ML_Feat --> ML_Tire
+
+' Note: Strategy Engine uses physics models (TireCompound/FuelModel) rather than direct ML inference coupling
+Strat_Found --> Strat_Scen
+Strat_Scen --> Strat_Sim
+Strat_Sim --> Strat_Val
+Strat_Val --> Strat_Opt
+
+Strat_Opt --> Dash_Adapt
+Dash_Adapt --> Dash_Lead
+Dash_Adapt --> Dash_Comp
+Dash_Adapt --> Dash_Time
+Dash_Adapt --> Dash_FT
+Dash_Adapt --> Dash_Det
+Dash_Lead --> Dash_App
+Dash_Comp --> Dash_App
+Dash_Time --> Dash_App
+Dash_FT --> Dash_App
+Dash_Det --> Dash_App
+
+Streaming ..> MongoDB : (Parallel Legacy Flow)
+MongoDB ..> FlaskBridge
+FlaskBridge ..> ReactCockpit
+FlaskBridge ..> ThreeJS
+
+legend right
+  |<back:#LightGreen>  </back>| GREEN: Production-Ready & Tested |
+  |<back:#Yellow>  </back>| YELLOW: Functional with Debt / Offline Skips |
+  |<back:#Orange>  </back>| ORANGE: Unintegrated Legacy Component |
+endlegend
+
+@enduml

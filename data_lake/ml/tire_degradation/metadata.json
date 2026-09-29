@@ -1,0 +1,34 @@
+{
+  "phase": "G.4.4",
+  "module": "Tire Degradation Modeling",
+  "horizon_steps": 10,
+  "wheels": [
+    "FL",
+    "FR",
+    "RL",
+    "RR"
+  ],
+  "random_state": 42,
+  "timestamp": "2026-09-22T23:15:18.960457+00:00",
+  "split_info": {
+    "total_rows": 2950,
+    "train_count": 2065,
+    "val_count": 442,
+    "test_count": 443,
+    "train_pct": 70.0,
+    "val_pct": 14.98,
+    "test_pct": 15.02,
+    "train_timestamps": [
+      "2026-09-22T12:00:01.000Z",
+      "2026-09-22T16:04:55.000Z"
+    ],
+    "val_timestamps": [
+      "2026-09-22T16:04:56.000Z",
+      "2026-09-22T14:02:27.000Z"
+    ],
+    "test_timestamps": [
+      "2026-09-22T14:02:28.000Z",
+      "2026-09-22T14:09:50.000Z"
+    ]
+  }
+}

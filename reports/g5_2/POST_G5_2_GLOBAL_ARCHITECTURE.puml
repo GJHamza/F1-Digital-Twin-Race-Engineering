@@ -1,0 +1,76 @@
+@startuml POST_G5_2_GLOBAL_ARCHITECTURE
+!theme vibrant
+title F1 Digital Twin — End-to-End Global Architecture Map (Post-G.5.2 Audit)
+
+skinparam componentStyle uml2
+skinparam rectangleStyle round
+
+package "Ingress & Real-Time Telemetry Layer" #F4ECF7 {
+    [Three.js Interactive Simulator] as Simulator #LightBlue
+    [Flask Hardened API Gateway (/telemetry)] as FlaskAPI #LightGreen
+    [Kafka Ingress Topic: f1_telemetry] as KafkaIngress #Yellow
+    [Kafka Data Engine Consumer] as DataEngine #Yellow
+    [MongoDB Atlas (F1_Simulation)] as MongoDB #Yellow
+}
+
+package "Process-Isolated ML Bridge Engine (G.5.2 Verified)" #FEF9E7 {
+    [ML Bridge Consumer (ml_bridge_consumer.py)] as MLBridge #LightGreen
+    [Schema V1 Validation Gate] as SchemaGate #LightGreen
+    [In-Memory SessionStateStore (Deque maxlen=5)] as StateStore #LightGreen
+    
+    package "Online Evaluators (Pre-trained Models)" #EAFAF1 {
+        [G.4.2 Anomaly Detector (IsolationForest)] as OnlineAnomaly #LightGreen
+        [G.4.3 Pre-Lap Time Predictor (GradientBoosting)] as OnlineLapTime #LightGreen
+        [G.4.4 Tire Degradation Horizon (Ridge)] as OnlineTireDeg #LightGreen
+    }
+
+    [Kafka Signal Producer] as SignalProducer #LightGreen
+    [Kafka Egress Topic: f1_ml_signals] as KafkaEgress #Yellow
+}
+
+package "Data Engineering & Standalone ML Core" #EBF5FB {
+    [Data Lake / MinIO Object Storage] as DataLake #Yellow
+    [Bronze / Silver / Gold Spark Parquet ETL] as ETLPipeline #LightGreen
+    [Offline ML Model Training (G.4.1 - G.4.4)] as OfflineML #LightGreen
+}
+
+package "Strategy Core & Dashboard Layer" #EAFAF1 {
+    [G.4.5 Strategy Simulator & Optimizer] as StratEngine #LightGreen
+    [G.4.6 Streamlit Strategy Dashboard] as Dashboard #LightGreen
+    [G.4.6 Dashboard Adapter] as Adapter #LightGreen
+}
+
+' Real-Time Ingress Flow
+Simulator --> FlaskAPI : "POST /telemetry (JSON Schema V1)"
+FlaskAPI --> KafkaIngress : "Publish Raw Telemetry Events"
+KafkaIngress --> DataEngine : "Consume Raw Stream"
+DataEngine --> MongoDB : "Persist Raw Event"
+
+' Real-Time ML Bridge Ingestion & Evaluation
+KafkaIngress --> MLBridge : "Process-Isolated Ingress Stream"
+MLBridge --> SchemaGate : "Schema V1 Compliance Filter"
+SchemaGate --> StateStore : "Update Rolling Deque & Lap Accumulators"
+
+StateStore --> OnlineAnomaly : "Per-Tick Event Vector"
+StateStore --> OnlineLapTime : "Trigger strictly on Lap Completion (No Leakage)"
+StateStore --> OnlineTireDeg : "Stint Wear & 4-Corner Degradation"
+
+OnlineAnomaly --> SignalProducer : "Anomaly Score, Severity, Top Signals"
+OnlineLapTime --> SignalProducer : "Predicted Lap Time Sec"
+OnlineTireDeg --> SignalProducer : "Remaining Stint Life Laps"
+SignalProducer --> KafkaEgress : "Publish Unified ML Signal Payload"
+
+' Strategy & Presentation Layer
+DataLake --> ETLPipeline : "Raw Event Lake"
+ETLPipeline --> OfflineML : "Feature Tables"
+StratEngine --> Adapter : "Scenario Pareto Evaluation"
+Adapter --> Dashboard : "UI DataFrames"
+KafkaEgress ..> Dashboard : "[Optional Future Banner Integration]"
+
+legend right
+  |<back:#LightGreen>  </back>| Hardened & Verified Production Module |
+  |<back:#Yellow>  </back>| Storage / Messaging Infrastructure |
+  |<back:#LightBlue>  </back>| Simulator Client Ingress |
+endlegend
+
+@enduml

@@ -1,0 +1,65 @@
+@startuml g4_6_7_architecture
+title Final Strategy Dashboard E2E Integration Architecture (G.4.6.7)
+
+skinparam componentStyle uml2
+skinparam backgroundColor #FFFFFF
+skinparam packageBackgroundColor #F8FAFC
+skinparam componentBackgroundColor #FFFFFF
+skinparam componentBorderColor #0F172A
+
+package "Authoritative Strategy Pipeline (G.4.5)" {
+    [G.4.5.1 Foundation\n(Stint, PitStop, Physics)] as Foundation
+    [G.4.5.2 Scenario Builder\n(ScenarioGenerator)] as Builder
+    [G.4.5.3 Race Pace Simulator\n(SimulationResult)] as Simulator
+    [G.4.5.4 Constraint Validator\n(ValidationResult)] as Validator
+    [G.4.5.5 Strategy Optimizer\n(RankingResult)] as Optimizer
+
+    Foundation --> Builder
+    Builder --> Simulator
+    Simulator --> Validator
+    Validator --> Optimizer
+}
+
+package "View-Model Transformation Layer (G.4.6.1)" {
+    [StrategyDashboardAdapter] as Adapter
+    Optimizer --> Adapter : Top-K Ranking & Data Payload
+}
+
+package "Unified Presentation & Analytics Dashboard (G.4.6.2 - G.4.6.6)" {
+    [st.session_state\n(selected_scenario_id)] as SessionState
+
+    package "render_strategy_dashboard_tab (G.4.6.7 Entry Point)" {
+        [G.4.6.2 Strategy Leaderboard\n(Top-K Table & Search/Stop Filters)] as Leaderboard
+        [G.4.6.4 Stint / Compound Timeline\n(Gantt Bars & Pit Transitions)] as Timeline
+        [G.4.6.5 Fuel & 4-Corner Tire Analytics\n(Micro-Curves, Balance, Tire Life)] as Analytics
+        [G.4.6.6 Strategy Details & Validation Audit\n(Violations, Config, Lap Trace Table)] as Details
+        [G.4.6.3 Strategy Comparison\n(Multi-Strategy Trade-offs & Deltas)] as Comparison
+    }
+
+    SessionState --> Leaderboard : Selected ID
+    SessionState --> Timeline : Selected ID
+    SessionState --> Analytics : Selected ID
+    SessionState --> Details : Selected ID
+    SessionState --> Comparison : Selected / Default IDs
+
+    Adapter --> Leaderboard
+    Adapter --> Timeline
+    Adapter --> Analytics
+    Adapter --> Details
+    Adapter --> Comparison
+}
+
+package "Streamlit Main Application Integration (G.4.6.7)" {
+    [analytics_dashboard.py\n(F1 Engineering Platform Main UI)] as MainApp
+    MainApp --> "render_strategy_dashboard_tab" : Mounts Strategy Tab
+}
+
+note right of MainApp
+  **END-TO-END VALIDATION GUARANTEES**
+  * NO domain object mutation (Immutability)
+  * NO simulation or re-ranking rerun (Zero domain recomputation)
+  * Bitwise-deterministic presentation output
+  * Cross-module value consistency across all 5 presentation sections
+end note
+
+@enduml

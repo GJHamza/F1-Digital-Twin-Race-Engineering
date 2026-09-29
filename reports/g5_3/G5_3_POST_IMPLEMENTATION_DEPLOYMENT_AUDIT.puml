@@ -1,0 +1,56 @@
+@startuml G5_3_POST_IMPLEMENTATION_DEPLOYMENT_AUDIT
+!theme plain
+skinparam componentStyle uml2
+skinparam backgroundColor #FFFFFF
+skinparam packageBackgroundColor #F8F9FA
+skinparam packageBorderColor #CED4DA
+
+title F1 Digital Twin — G.5.3 Post-Implementation Deployment Architecture
+
+package "Public / Ingress Edge" {
+    [Flask API + React 19 Cockpit\n(Port 5000 / WSGI Gunicorn)] as API
+    [Streamlit Strategy Dashboard\n(Port 8501 / GAP-04 Container)] as Streamlit
+    [MinIO Object Storage Console/API\n(Port 9001 / 9000)] as MinIO
+}
+
+package "Internal Docker Network (f1-net)" {
+    [Zookeeper\n(Port 2181)] as ZK
+    [Kafka Message Broker\n(Port 9092 / 29092)] as Kafka
+    [ML Bridge Consumer\n(f1_telemetry -> f1_ml_signals)] as MLBridge
+    [Data Engine Consumer\n(Kafka -> MongoDB Atlas)] as DataEngine
+}
+
+package "External Managed Cloud Services" {
+    database "MongoDB Atlas\n(Telemetry Database)" as MongoDB
+}
+
+package "ML Artifact Store (Mounted / Embedded)" {
+    folder "code/ml/models/" as Models {
+        file "anomaly_detector.pkl"
+        file "lap_time_model.pkl"
+        file "tire_degradation_model.pkl"
+    }
+}
+
+API --> Kafka : Rest fallback / publish
+Streamlit --> MinIO : Analytics Parquet / Data Lake
+Kafka --> MLBridge : Consume f1_telemetry
+MLBridge --> Models : Inference Load
+MLBridge --> Kafka : Publish f1_ml_signals
+Kafka --> DataEngine : Consume f1_telemetry
+DataEngine --> MongoDB : Ingest Documents
+ZK <--> Kafka : Cluster Coordination
+
+note right of Streamlit
+  GAP-04: Streamlit Containerized
+  Headless 0.0.0.0:8501
+  Non-root user
+end note
+
+note right of API
+  Multi-stage Dockerfile.api
+  Compiles React 19 -> Gunicorn static host
+  G.5.1 Security Controls Retained
+end note
+
+@enduml

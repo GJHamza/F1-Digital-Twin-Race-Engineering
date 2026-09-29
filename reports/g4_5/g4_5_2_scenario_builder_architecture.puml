@@ -1,0 +1,92 @@
+@startuml G4_5_2_Scenario_Builder_Architecture
+!theme plain
+skinparam backgroundColor white
+skinparam handwritten false
+skinparam class {
+    BackgroundColor white
+    ArrowColor #2c3e50
+    BorderColor #2c3e50
+}
+
+package "G.4.5.2 Scenario Builder Architecture" {
+
+    class RaceConfig {
+        + race_id: String
+        + total_laps: int
+        + starting_fuel: float
+        + initial_compound: String
+        + pit_stop_loss_sec: float
+        + max_tire_wear: float
+        + min_stint_laps: int
+    }
+
+    class ScenarioConstraints {
+        + max_stops: int
+        + min_stint_laps: int
+        + pit_step_laps: int
+        + allowed_compounds: List[String]
+        + require_distinct_dry_compounds: bool
+        + weather_mode: String
+        + validate_scenario(stints, pit_stops): bool
+    }
+
+    class ScenarioGenerator {
+        + config: RaceConfig
+        + constraints: ScenarioConstraints
+        + generate_candidate_scenarios(): List[Scenario]
+        - generate_1stop_candidates(): List
+        - generate_2stop_candidates(): List
+        - generate_bounded_pit_laps(stint_count): List
+    }
+
+    class Scenario {
+        + scenario_id: String
+        + race_id: String
+        + total_laps: int
+        + number_of_stops: int
+        + number_of_stints: int
+        + compound_sequence: List[String]
+        + stints: List[Stint]
+        + pit_stops: List[PitStop]
+        + canonical_key: String
+        + generation_metadata: Dict
+        + validation_status: String
+        + to_dict(): Dict
+        + to_g451_payload(): Dict
+    }
+
+    class ScenarioDeduplicator {
+        + compute_canonical_key(stints): String
+        + generate_deterministic_id(canonical_key): String
+        + deduplicate(scenarios: List[Scenario]): List[Scenario]
+    }
+
+    class ScenarioSerializer {
+        + save_to_json(scenarios, path)
+        + save_to_parquet(scenarios, path)
+        + load_from_json(path): List[Scenario]
+    }
+
+    class StrategySimulator <<G.4.5.1>> {
+        + simulate_strategy(stints, pit_stops): SimulationResult
+    }
+
+    class DegradationInterface <<G.4.4 Interface>> {
+        + get_predicted_wear_delta(stint, compound): float
+    }
+
+    class LapTimeInterface <<G.4.3 Interface>> {
+        + get_predicted_lap_pace(stint, fuel_level): float
+    }
+
+    ScenarioGenerator --> RaceConfig : consumes
+    ScenarioGenerator --> ScenarioConstraints : applies
+    ScenarioGenerator --> ScenarioDeduplicator : deduplicates via
+    ScenarioGenerator --> Scenario : creates
+    Scenario --> StrategySimulator : feeds into
+    Scenario ..> DegradationInterface : prepares input for
+    Scenario ..> LapTimeInterface : prepares input for
+    ScenarioSerializer --> Scenario : serializes
+}
+
+@enduml

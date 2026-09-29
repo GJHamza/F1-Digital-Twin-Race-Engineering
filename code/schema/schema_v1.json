@@ -1,0 +1,341 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "F1TelemetryEventV1",
+  "description": "Official F1 Digital Twin Telemetry Event Specification V1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "session_id",
+    "event_id",
+    "car_id",
+    "timestamp",
+    "telemetry",
+    "aerodynamics",
+    "tires"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "enum": ["1.0"]
+    },
+    "session_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "event_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "car_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "car_name": {
+      "type": "string"
+    },
+    "team": {
+      "type": "string"
+    },
+    "driver_id": {
+      "type": "string"
+    },
+    "driver_name": {
+      "type": "string"
+    },
+    "timestamp": {
+      "type": "string"
+    },
+    "lap_number": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "lap_time_ms": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "sector_number": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 3
+    },
+    "sector_time_ms": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "distance_m": {
+      "type": "number",
+      "minimum": 0.0
+    },
+    "race_position": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 20
+    },
+    "session_type": {
+      "type": "string",
+      "enum": ["PRACTICE", "QUALIFYING", "RACE", "TEST", "WIND_TUNNEL", "BRAKE_TEST", "TIRE_TEST"]
+    },
+    "vehicle_mass": {
+      "type": "number",
+      "minimum": 500.0,
+      "maximum": 1200.0
+    },
+    "setup_downforce": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "setup_engine_mix": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10
+    },
+    "engine_mode": {
+      "type": "string"
+    },
+    "vehicle_status": {
+      "type": "string",
+      "enum": ["IN_PIT", "ON_TRACK", "CRASHED", "RETIRED"]
+    },
+    "throttle": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 100.0
+    },
+    "brake": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 100.0
+    },
+    "steering_angle": {
+      "type": "number",
+      "minimum": -360.0,
+      "maximum": 360.0
+    },
+    "telemetry": {
+      "type": "object",
+      "required": ["speed", "g_force", "torque", "pos_x", "pos_z"],
+      "properties": {
+        "speed": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 400.0
+        },
+        "rpm": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 20000.0
+        },
+        "gear": {
+          "type": "integer",
+          "minimum": -1,
+          "maximum": 8
+        },
+        "torque": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 2000.0
+        },
+        "g_force": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 10.0
+        },
+        "pos_x": {
+          "type": "number"
+        },
+        "pos_z": {
+          "type": "number"
+        },
+        "engine_temperature": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 200.0
+        },
+        "engine_load": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 100.0
+        }
+      }
+    },
+    "aerodynamics": {
+      "type": "object",
+      "required": ["wind_speed", "drag_coefficient", "downforce"],
+      "properties": {
+        "wind_speed": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 200.0
+        },
+        "wind_direction": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 360.0
+        },
+        "drag_coefficient": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 2.0
+        },
+        "downforce": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 30000.0
+        },
+        "drs_active": {
+          "type": "boolean"
+        },
+        "air_density": {
+          "type": "number",
+          "minimum": 0.5,
+          "maximum": 2.0
+        }
+      }
+    },
+    "tires": {
+      "type": "object",
+      "required": ["tire_temp", "tire_wear"],
+      "properties": {
+        "tire_temp": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": {
+            "type": "number",
+            "minimum": 0.0,
+            "maximum": 250.0
+          }
+        },
+        "tire_wear": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": {
+            "type": "number",
+            "minimum": 0.0,
+            "maximum": 100.0
+          }
+        },
+        "tire_pressure": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": {
+            "type": "number",
+            "minimum": 10.0,
+            "maximum": 40.0
+          }
+        },
+        "compound": {
+          "type": "string",
+          "enum": ["SOFT", "MEDIUM", "HARD", "INTERMEDIATE", "WET"]
+        },
+        "tire_age_laps": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "degradation_rate": {
+          "type": "number",
+          "minimum": 0.0
+        }
+      }
+    },
+    "fuel_level": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 150.0
+    },
+    "fuel_consumption_rate": {
+      "type": "number",
+      "minimum": 0.0
+    },
+    "fuel_used": {
+      "type": "number",
+      "minimum": 0.0
+    },
+    "ers_battery_pct": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 100.0
+    },
+    "ers_deployment": {
+      "type": "number",
+      "minimum": 0.0
+    },
+    "ers_recovery": {
+      "type": "number",
+      "minimum": 0.0
+    },
+    "air_temperature": {
+      "type": "number"
+    },
+    "track_temperature": {
+      "type": "number"
+    },
+    "humidity": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 100.0
+    },
+    "rain_intensity": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 100.0
+    },
+    "weather_state": {
+      "type": "string",
+      "enum": ["DRY", "LIGHT_RAIN", "HEAVY_RAIN"]
+    },
+    "track_condition": {
+      "type": "string",
+      "enum": ["DRY", "DAMP", "WET"]
+    },
+    "pos_x": {
+      "type": "number"
+    },
+    "pos_z": {
+      "type": "number"
+    },
+    "lap_progress_pct": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 100.0
+    },
+    "acceleration": {
+      "type": "number"
+    },
+    "braking_intensity": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 100.0
+    },
+    "average_speed": {
+      "type": "number",
+      "minimum": 0.0
+    },
+    "tire_degradation_rate": {
+      "type": "number",
+      "minimum": 0.0
+    },
+    "aero_efficiency": {
+      "type": "number",
+      "minimum": 0.0
+    },
+    "tire_stress_index": {
+      "type": "number",
+      "minimum": 0.0
+    },
+    "performance_index": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 100.0
+    },
+    "anomaly_flag": {
+      "type": "boolean"
+    },
+    "active_anomalies": {
+      "type": "array"
+    }
+  }
+}

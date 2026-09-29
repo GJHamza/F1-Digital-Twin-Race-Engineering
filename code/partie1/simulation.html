@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="williams">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>F1 DIGITAL TWIN — Race Engineering Platform</title>
+    <meta name="description" content="F1 Digital Twin — A next-gen racing simulation platform with real-time telemetry, wind tunnel testing, and data analytics.">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════ -->
+<!--              HOME PAGE                 -->
+<!-- ═══════════════════════════════════════ -->
+<div id="home-screen" class="screen">
+
+    <!-- Particle Canvas Background -->
+    <canvas id="particles-canvas"></canvas>
+
+    <!-- HERO -->
+    <section class="hero" id="hero">
+        <div class="hero-bg"></div>
+        <div class="hero-overlay"></div>
+        <nav class="hero-nav">
+            <div class="nav-logo">F1 <span class="nav-accent">DIGITAL TWIN</span></div>
+            <div class="nav-links">
+                <a href="#about">About</a>
+                <a href="#features">Features</a>
+                <a href="#architecture">Architecture</a>
+                <!-- Theme Selector -->
+                <div class="theme-select" id="theme-select">
+                    <button class="theme-btn active" data-theme="williams" title="Williams"><span style="background:#00edff"></span></button>
+                    <button class="theme-btn" data-theme="ferrari" title="Ferrari"><span style="background:#ff2800"></span></button>
+                    <button class="theme-btn" data-theme="mclaren" title="McLaren"><span style="background:#ff8000"></span></button>
+                    <button class="theme-btn" data-theme="redbull" title="Red Bull"><span style="background:#1e41ff"></span></button>
+                    <button class="theme-btn" data-theme="mercedes" title="Mercedes"><span style="background:#00d2be"></span></button>
+                </div>
+            </div>
+        </nav>
+        <div class="hero-content">
+            <div class="hero-badge anim-fade-in">RACE ENGINEERING PLATFORM</div>
+            <h1 class="hero-title" id="hero-title-animated">
+                <span class="hero-line">The Future of</span>
+                <span class="hero-line"><span class="gradient-text">F1 Simulation</span></span>
+            </h1>
+            <p class="hero-subtitle anim-fade-in d2">A real-time digital twin ecosystem combining 3D simulation, Kafka-powered telemetry streaming, and MongoDB analytics — built for precision engineering.</p>
+            <button class="hero-cta anim-fade-in d3" id="btn-enter-garage">
+                <span>ENTER THE GARAGE</span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+        </div>
+        <div class="hero-scroll-hint anim-fade-in d4">
+            <span>SCROLL TO EXPLORE</span>
+            <div class="scroll-line"></div>
+        </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section class="section" id="about">
+        <div class="section-content">
+            <div class="section-tag">ABOUT THE PROJECT</div>
+            <h2 class="section-title">What is <span class="gradient-text">F1 Digital Twin</span>?</h2>
+            <p class="section-text">This project is a complete Formula 1 simulation ecosystem that replicates the real-world workflow of a race engineering team. From vehicle selection to wind tunnel testing, every piece of telemetry is captured, streamed via Apache Kafka, stored in MongoDB Atlas, and analyzed through an engineering dashboard.</p>
+            <div class="stat-row">
+                <div class="stat-card"><div class="stat-num count-up" data-target="5">0</div><div class="stat-label">Vehicle Models</div></div>
+                <div class="stat-card"><div class="stat-num count-up" data-target="4">0</div><div class="stat-label">Live Tests</div></div>
+                <div class="stat-card"><div class="stat-num count-up" data-target="60">0</div><div class="stat-label">FPS Real-time</div></div>
+                <div class="stat-card"><div class="stat-num">∞</div><div class="stat-label">Data Points</div></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section class="section dark-section" id="features">
+        <div class="section-content">
+            <div class="section-tag">FEATURES</div>
+            <h2 class="section-title">Three Pillars of the <span class="gradient-text">Ecosystem</span></h2>
+            <div class="features-grid">
+                <div class="feature-card anim-slide-up">
+                    <div class="feature-img" style="background-image:url('img/windtunnel.png')"></div>
+                    <div class="feature-body">
+                        <div class="feature-num">01</div>
+                        <h3>3D Test Bench</h3>
+                        <p>Select a vehicle and run it on a rolling road dyno. Activate the wind tunnel, emergency brakes, or tire stress tests — all in real-time 3D with Three.js.</p>
+                    </div>
+                </div>
+                <div class="feature-card anim-slide-up d1">
+                    <div class="feature-img" style="background-image:url('img/analytics.png')"></div>
+                    <div class="feature-body">
+                        <div class="feature-num">02</div>
+                        <h3>Kafka Telemetry Pipeline</h3>
+                        <p>Every data point flows through Apache Kafka in real-time. Speed, G-force, tire temperature, drag coefficients — all streamed to MongoDB Atlas instantly.</p>
+                    </div>
+                </div>
+                <div class="feature-card anim-slide-up d2">
+                    <div class="feature-img" style="background-image:url('img/analytics.png')"></div>
+                    <div class="feature-body">
+                        <div class="feature-num">03</div>
+                        <h3>Engineering Dashboard</h3>
+                        <p>A Streamlit-powered analytics interface for race engineers. Analyze historical runs, compare setups, and optimize car performance with data-driven insights.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ARCHITECTURE -->
+    <section class="section" id="architecture">
+        <div class="section-content">
+            <div class="section-tag">SYSTEM ARCHITECTURE</div>
+            <h2 class="section-title">How It <span class="gradient-text">Works</span></h2>
+            <div class="arch-flow">
+                <div class="arch-step"><div class="arch-icon">🏎️</div><div class="arch-name">Partie 1</div><div class="arch-desc">3D Simulation<br>(Three.js + Flask)</div></div>
+                <div class="arch-arrow">→</div>
+                <div class="arch-step"><div class="arch-icon">📡</div><div class="arch-name">Partie 2</div><div class="arch-desc">Kafka Pipeline<br>(Producer → Consumer)</div></div>
+                <div class="arch-arrow">→</div>
+                <div class="arch-step"><div class="arch-icon">🗄️</div><div class="arch-name">MongoDB</div><div class="arch-desc">Atlas Database<br>(Telemetry Storage)</div></div>
+                <div class="arch-arrow">→</div>
+                <div class="arch-step"><div class="arch-icon">📊</div><div class="arch-name">Partie 3</div><div class="arch-desc">Analytics Dashboard<br>(Streamlit)</div></div>
+            </div>
+            <div class="arch-cta">
+                <button class="hero-cta" id="btn-enter-garage-2"><span>START THE SIMULATION</span>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <footer class="site-footer">
+        <div class="footer-content">
+            <span>F1 DIGITAL TWIN © 2026</span>
+            <span>Built with Three.js • Flask • Kafka • MongoDB • Streamlit</span>
+        </div>
+    </footer>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!--             GARAGE SCREEN              -->
+<!-- ═══════════════════════════════════════ -->
+<div id="garage-screen" class="screen hidden">
+    <div class="garage-top">
+        <div class="logo">F1 <span class="accent">DIGITAL TWIN</span></div>
+        <div class="subtitle">SELECT YOUR VEHICLE FOR THE TEST BENCH</div>
+    </div>
+    <div class="garage-main">
+        <div id="garage-3d" class="garage-viewport"></div>
+        <div class="car-cards" id="car-cards"></div>
+    </div>
+    <div class="garage-bottom-row">
+        <button class="btn-nav-link" id="btn-garage-home">🏠 HOME</button>
+        <button class="btn-launch hidden" id="btn-start">ENTER TEST BENCH →</button>
+        <a href="http://localhost:8501" target="_blank" class="btn-nav-link">📊 DASHBOARD</a>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!--            TEST BENCH SCREEN           -->
+<!-- ═══════════════════════════════════════ -->
+<div id="bench-screen" class="screen hidden">
+    <aside class="panel left-panel">
+        <div class="panel-header">TEST CONTROLS</div>
+
+        <!-- Preset Profiles -->
+        <div class="control-group presets-group">
+            <div class="group-label">⚡ QUICK PROFILES</div>
+            <div class="preset-row">
+                <button class="btn-preset" data-profile="qualifying" title="340 km/h + Wind 50kts">🏁 QUALI</button>
+                <button class="btn-preset" data-profile="wet" title="200 km/h + Wind 80kts + Tires">🌧️ WET</button>
+                <button class="btn-preset" data-profile="endurance" title="280 km/h + Wind 30kts + Tires">🔥 ENDUR</button>
+                <button class="btn-preset" data-profile="emergency" title="300 km/h then Emergency Brake">🛑 E-STOP</button>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <div class="group-label">ROLLING ROAD</div>
+            <button class="btn-test" id="btn-road"><span class="btn-icon">▶</span> START / STOP <kbd>Space</kbd></button>
+            <div class="slider-row"><label>TARGET SPEED</label><input type="range" id="slider-speed" min="0" max="350" value="0" class="neon-slider"><span class="slider-val" id="val-speed">0 km/h</span></div>
+        </div>
+        <div class="control-group">
+            <div class="group-label">WIND TUNNEL</div>
+            <button class="btn-test" id="btn-wind"><span class="btn-icon">💨</span> ACTIVATE WIND <kbd>W</kbd></button>
+            <div class="slider-row"><label>WIND FORCE</label><input type="range" id="slider-wind" min="0" max="100" value="0" class="neon-slider"><span class="slider-val" id="val-wind">0 kts</span></div>
+        </div>
+        <div class="control-group">
+            <div class="group-label">BRAKE TEST</div>
+            <button class="btn-test" id="btn-brake"><span class="btn-icon">🛑</span> EMERGENCY BRAKE <kbd>B</kbd></button>
+        </div>
+        <div class="control-group">
+            <div class="group-label">TIRE STRESS</div>
+            <button class="btn-test" id="btn-tire"><span class="btn-icon">🔥</span> OVERHEAT TIRES <kbd>T</kbd></button>
+        </div>
+
+        <div class="nav-divider"></div>
+        <!-- Session Qualification Timer -->
+        <div class="control-group session-timer-group">
+            <div class="group-label">⏱️ QUALIFYING SESSION RUN</div>
+            <div class="session-timer-box">
+                <div class="session-timer-text" id="session-timer-text">READY FOR RUN</div>
+                <div class="session-progress-bar"><div class="session-progress-fill" id="session-progress-fill"></div></div>
+            </div>
+            <button class="btn-test btn-run-start" id="btn-start-run"><span class="btn-icon">⏱️</span> START 30s QUALI RUN</button>
+            <button class="btn-test btn-run-download hidden" id="btn-download-run" style="margin-top:8px"><span class="btn-icon">💾</span> DOWNLOAD RUN TELEMETRY</button>
+        </div>
+
+        <div class="nav-divider"></div>
+        <div class="group-label">NAVIGATION</div>
+        <button class="btn-back" id="btn-back">← BACK TO GARAGE</button>
+        <button class="btn-back" id="btn-bench-home">🏠 HOME PAGE</button>
+        <a href="http://localhost:8501" target="_blank" class="btn-nav-ext disabled" id="link-dashboard">📊 ANALYTICS DASHBOARD</a>
+    </aside>
+
+    <main class="viewport-area">
+        <div id="bench-3d" class="bench-viewport"></div>
+        <div class="viewport-bar">
+            <div class="viewport-label" id="test-status">IDLE — AWAITING INSTRUCTIONS</div>
+            <button class="btn-fullscreen" id="btn-fullscreen" title="Toggle Fullscreen">⛶</button>
+        </div>
+    </main>
+
+    <aside class="panel right-panel">
+        <div class="panel-header">
+            LIVE TELEMETRY
+            <span class="kafka-badge" id="kafka-badge">● OFFLINE</span>
+        </div>
+        <div class="data-counter" id="data-counter">📡 0 data points sent</div>
+
+        <div class="metric-card"><div class="mc-label">SPEED</div><div class="mc-value"><span id="t-speed">0</span><span class="mc-unit">km/h</span></div><div class="mc-bar"><div class="mc-fill primary" id="bar-speed"></div></div></div>
+        <div class="metric-card"><div class="mc-label">DRAG COEFFICIENT</div><div class="mc-value"><span id="t-drag">0.00</span><span class="mc-unit">Cd</span></div><div class="mc-bar"><div class="mc-fill orange" id="bar-drag"></div></div></div>
+        <div class="metric-card"><div class="mc-label">DOWNFORCE</div><div class="mc-value"><span id="t-downforce">0</span><span class="mc-unit">kg</span></div></div>
+        <div class="metric-card"><div class="mc-label">G-FORCE</div><div class="mc-value"><span id="t-gforce">1.00</span><span class="mc-unit">G</span></div></div>
+        <div class="divider"></div>
+        <div class="panel-header small">TIRE TEMPERATURE</div>
+        <div class="tire-grid">
+            <div class="tire-box" id="tire-fl"><div class="tire-label">FL</div><div class="tire-val">90°C</div></div>
+            <div class="tire-box" id="tire-fr"><div class="tire-label">FR</div><div class="tire-val">90°C</div></div>
+            <div class="tire-box" id="tire-rl"><div class="tire-label">RL</div><div class="tire-val">90°C</div></div>
+            <div class="tire-box" id="tire-rr"><div class="tire-label">RR</div><div class="tire-val">90°C</div></div>
+        </div>
+        <div class="divider"></div>
+        <div class="panel-header small">BRAKES</div>
+        <div class="brake-row"><div class="brake-label">THROTTLE</div><div class="brake-track"><div class="brake-fill primary" id="bar-throttle"></div></div></div>
+        <div class="brake-row"><div class="brake-label">BRAKE</div><div class="brake-track"><div class="brake-fill red" id="bar-brake"></div></div></div>
+        <div class="divider"></div>
+        <div class="panel-header small">ENGINE</div>
+        <div class="metric-card"><div class="mc-label">TORQUE</div><div class="mc-value"><span id="t-torque">0</span><span class="mc-unit">Nm</span></div></div>
+        <div class="metric-card"><div class="mc-label">WIND SPEED</div><div class="mc-value"><span id="t-wind">0.0</span><span class="mc-unit">kts</span></div></div>
+
+        <div class="divider"></div>
+        <div class="panel-header small">SHORTCUTS</div>
+        <div class="shortcuts-list">
+            <div><kbd>Space</kbd> Road On/Off</div>
+            <div><kbd>W</kbd> Wind On/Off</div>
+            <div><kbd>B</kbd> Emergency Brake</div>
+            <div><kbd>T</kbd> Tire Stress</div>
+            <div><kbd>↑↓</kbd> Speed ±10</div>
+            <div><kbd>F</kbd> Fullscreen</div>
+        </div>
+    </aside>
+</div>
+
+<script src="simulation.js"></script>
+</body>
+</html>

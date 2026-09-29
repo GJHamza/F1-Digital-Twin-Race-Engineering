@@ -1,0 +1,66 @@
+@startuml G5_1_SECURITY_ARCHITECTURE
+!theme vibrant
+title F1 Digital Twin — Security & Production Architecture Map (G.5.1)
+
+skinparam componentStyle uml2
+skinparam rectangleStyle round
+
+package "Client & Entry Boundaries" #F4ECF7 {
+    [Browser / Web Simulator] as Client #LightBlue
+    [Streamlit Strategy Dashboard] as Dashboard #LightGreen
+}
+
+package "Flask API Gateway (Hardened)" #FDEDEC {
+    [Request Content-Type & Size Filter] as SizeFilter #LightGreen
+    [CORS Restriction Middleware] as CORSMiddleware #LightGreen
+    [Schema V1 Validation Engine] as SchemaVal #LightGreen
+    [Central Config & Secret Masker] as CentralConfig #LightGreen
+    [Health (/health) & Readiness (/readiness)] as HealthProbes #LightGreen
+    [Safe Error Handlers (No Stack Traces)] as ErrHandlers #LightGreen
+}
+
+package "Event & Persistence Resilience" #FEF9E7 {
+    [Kafka Producer (f1_telemetry)] as KafkaProducer #Yellow
+    [Kafka Broker (9092)] as KafkaBroker #Yellow
+    [Kafka Data Engine Consumer] as DataEngine #Yellow
+    [MongoDB Atlas (F1_Simulation)] as MongoDB #Yellow
+}
+
+package "Data & ML Strategy Pipeline" #EAFAF1 {
+    [MinIO / Data Lake] as DataLake #Yellow
+    [Offline ML Models (G.4.1 - G.4.4)] as MLModels #Yellow
+    [G.4.5 Strategy Engine (Deterministic Physics)] as StrategyEngine #LightGreen
+    [G.4.6 Strategy Dashboard Adapter] as DashboardAdapter #LightGreen
+}
+
+' Client Connections
+Client --> SizeFilter : "POST /telemetry, /setup"
+Dashboard --> DashboardAdapter : "In-Memory Simulation Render"
+
+' Flask Security Boundaries
+SizeFilter --> CORSMiddleware
+CORSMiddleware --> SchemaVal
+SchemaVal --> ErrHandlers
+CentralConfig ..> HealthProbes : "Provides Env Config & Masked Logs"
+
+' Fallback Architecture
+SchemaVal --> KafkaProducer : "Valid Telemetry Payload"
+KafkaProducer --> KafkaBroker : "Publish to f1_telemetry"
+KafkaProducer ..> MongoDB : "[Fallback] Direct Mongo Insert"
+KafkaProducer ..> Client : "[Fallback] Offline Console Mode"
+
+KafkaBroker --> DataEngine
+DataEngine --> MongoDB
+
+' Strategy Path
+DataLake --> MLModels : "Parquet Feature Extraction"
+StrategyEngine --> DashboardAdapter
+DashboardAdapter --> Dashboard
+
+legend right
+  |<back:#LightGreen>  </back>| Hardened & Tested Boundary |
+  |<back:#Yellow>  </back>| Graceful Fallback / Isolated Infrastructure |
+  |<back:#LightBlue>  </back>| Client / Presentation Layer |
+endlegend
+
+@enduml

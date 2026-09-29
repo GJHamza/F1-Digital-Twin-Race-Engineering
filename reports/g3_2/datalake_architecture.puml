@@ -1,0 +1,75 @@
+@startuml datalake_architecture
+!theme plain
+skinparam componentStyle uml2
+skinparam backgroundColor #FFFFFF
+skinparam packageBackgroundColor #F8F9FA
+
+title F1 Digital Twin — Data Lake Architecture (Phase G.3.2)
+
+package "Telemetry Source" {
+  [F1 Digital Twin Physics Engine] as Twin
+  [Synthetic Generator V2] as Gen
+}
+
+package "Message Streaming" {
+  [Apache Kafka Topic (f1_telemetry)] as Kafka
+}
+
+package "Operational Store (OLTP)" {
+  database "MongoDB Atlas" as Mongo {
+    [sessions]
+    [telemetry]
+    [anomalies]
+  }
+}
+
+package "Data Lake Storage (MinIO Object Storage - S3A)" {
+  node "s3a://f1-data-lake/" {
+    folder "Bronze Layer (Raw)" as BronzePath {
+      [bronze/telemetry/ (Parquet)] as BronzeData
+    }
+    folder "Silver Layer (Cleansed)" as SilverPath {
+      [silver/telemetry/ (Parquet)] as SilverData
+      [quarantine/telemetry/ (Parquet)] as QuarantineData
+    }
+    folder "Gold Layer (Analytics)" as GoldPath {
+      [gold/lap_performance/] as GoldLap
+      [gold/tire_performance/] as GoldTire
+      [gold/fuel_performance/] as GoldFuel
+      [gold/aero_performance/] as GoldAero
+      [gold/anomaly_summary/] as GoldAnom
+    }
+  }
+}
+
+package "Data Processing Engine (ETL)" {
+  [PySpark / PyArrow Engine] as Engine
+}
+
+package "Consumers & Analytics" {
+  [Race Engineering Dashboard] as Dash
+  [Future ML Pipeline (Phase G.4)] as ML
+}
+
+Twin --> Kafka : Stream Telemetry (100Hz)
+Gen --> BronzeData : Batch Ingestion
+Kafka --> Mongo : Real-time Ingestion
+
+Engine --> BronzeData : 1. Read Raw JSONL / Parquet
+BronzeData --> Engine : Ingest & Attach Metadata
+Engine --> SilverData : 2. Write Clean & Enriched Parquet
+Engine --> QuarantineData : Route Invalid / Duplicates
+
+Engine --> SilverData : 3. Read Enriched Telemetry
+SilverData --> Engine : Compute Aggregates
+Engine --> GoldLap : Write Lap Aggregates
+Engine --> GoldTire : Write Tire Wear/Thermal
+Engine --> GoldFuel : Write Fuel Consumption
+Engine --> GoldAero : Write Aero Efficiency
+Engine --> GoldAnom : Write Anomaly Summary
+
+GoldLap --> Dash : Query Performance
+GoldTire --> Dash : Strategy Optimization
+GoldPath --> ML : Future Feature Store & ML Models
+
+@enduml

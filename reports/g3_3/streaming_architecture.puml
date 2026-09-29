@@ -1,0 +1,50 @@
+@startuml streaming_architecture
+!theme plain
+skinparam componentStyle uml2
+skinparam backgroundColor #FFFFFF
+skinparam packageBackgroundColor #F8F9FA
+
+title F1 Digital Twin — PySpark Structured Streaming Architecture (Phase G.3.3)
+
+package "Telemetry Source" {
+  [F1 Digital Twin Engine] as Twin
+}
+
+package "Ingestion Gateway" {
+  [Flask Bridge (/telemetry)] as Flask
+}
+
+package "Message Streaming" {
+  queue "Kafka Broker (f1_kafka:29092 / localhost:9092)" as KafkaQueue {
+    [Topic: f1_telemetry] as Topic
+  }
+}
+
+package "PySpark Structured Streaming Engine" {
+  component "readStream (format: kafka)" as KafkaSource
+  component "JSON Decoder & Schema V1 Parser" as Decoder
+  component "event_id Filter & Date Partitioner" as Transformer
+  component "writeStream (format: parquet)" as ParquetSink
+}
+
+package "MinIO Object Storage (S3A Protocol)" {
+  node "s3a://f1-data-lake/" {
+    folder "Bronze Storage" {
+      [bronze/telemetry/ (Partitioned Parquet)] as BronzeStorage
+    }
+    folder "Durable State Checkpoint" {
+      [checkpoints/telemetry/ (S3A State Store)] as CheckpointStorage
+    }
+  }
+}
+
+Twin --> Flask : 1. HTTP POST Telemetry Event
+Flask --> Topic : 2. Produce JSON Payload
+Topic --> KafkaSource : 3. Read Stream (Offsets)
+KafkaSource --> Decoder : 4. Decode struct payload
+Decoder --> Transformer : 5. Validate event_id non-null
+Transformer --> ParquetSink : 6. Append to stream
+ParquetSink --> BronzeStorage : 7. Hadoop S3A Parquet Write
+ParquetSink --> CheckpointStorage : 8. S3A Checkpoint Offset Commit
+
+@enduml

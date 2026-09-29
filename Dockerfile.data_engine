@@ -1,0 +1,23 @@
+# Dockerfile.data_engine for Kafka Data Engine Consumer
+FROM python:3.10-slim
+
+WORKDIR /app
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app/code
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY code/ /app/code/
+COPY schema/ /app/schema/
+
+RUN useradd -m -u 1000 f1user && chown -R f1user:f1user /app
+USER f1user
+
+CMD ["python", "code/partie2/data_engine.py"]

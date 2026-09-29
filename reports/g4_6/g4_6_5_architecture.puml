@@ -1,0 +1,57 @@
+@startuml g4_6_5_architecture
+title Fuel & Tire Analytics Architecture (G.4.6.5)
+
+skinparam componentStyle uml2
+skinparam backgroundColor #FFFFFF
+skinparam packageBackgroundColor #F8FAFC
+skinparam componentBackgroundColor #FFFFFF
+skinparam componentBorderColor #0F172A
+
+package "Authoritative Strategy Pipeline (G.4.5)" {
+    [StrategyOptimizer\n(G.4.5.5)] as Optimizer
+    [RankingResult\n(Authoritative Ranking)] as RankingRes
+    [SimulationResult\n(4-Wheel & Lap Fuel Telemetry)] as SimRes
+}
+
+package "View-Model Transformation Layer (G.4.6.1)" {
+    [StrategyDashboardAdapter] as Adapter
+}
+
+package "Presentation & Analytics UI Layer (G.4.6.5)" {
+    [Selected Scenario ID\n(st.session_state)] as SessionState
+    [prepare_fuel_tire_analytics_view_data] as ViewPrep
+    
+    package "Fuel & Tire Cockpit Presentation" {
+        [Fuel Burn & Safety Margin Header] as FuelHeader
+        [4-Corner Wheel Wear Breakdown\n(FL, FR, RL, RR Curves)] as CornerWearChart
+        [Axle & Lateral Wear Balance] as WearBalanceVisual
+        [Stint Degradation & Tire Life Table] as TireLifeTable
+        [Engineering Alert Badges] as AlertBadges
+    }
+}
+
+Optimizer --> RankingRes : Produces Top-K
+RankingRes --> Adapter : Consumed Read-Only
+SimRes --> Adapter : Supplies lap_dataframe (FL/FR/RL/RR wear)
+
+SessionState --> ViewPrep : Passes scenario_id
+Adapter --> ViewPrep : Supplies lap_dataframe & stint_dataframe
+
+ViewPrep --> FuelHeader : Render Burn Rate & Margin
+ViewPrep --> CornerWearChart : Render 4-Wheel Degradation
+ViewPrep --> WearBalanceVisual : Render Front/Rear & Left/Right Bias
+ViewPrep --> TireLifeTable : Render Deg Rate & Remaining Life
+ViewPrep --> AlertBadges : Render Engineering Threshold Alerts
+
+note right of ViewPrep
+  **READ-ONLY PRESENTATION**
+  * NO Monte Carlo Analysis
+  * NO Sensitivity Analysis
+  * NO Re-ranking / Scoring
+  * NO Simulation Rerun
+  * NO Constraint Re-validation
+  * NO Optimization
+  * NO ML / LLM
+end note
+
+@enduml

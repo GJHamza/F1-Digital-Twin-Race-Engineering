@@ -1,0 +1,53 @@
+@startuml g4_6_4_stint_timeline
+title Strategy Stint / Compound Timeline Architecture (G.4.6.4)
+
+skinparam componentStyle uml2
+skinparam backgroundColor #FFFFFF
+skinparam packageBackgroundColor #F8FAFC
+skinparam componentBackgroundColor #FFFFFF
+skinparam componentBorderColor #0F172A
+
+package "Authoritative Strategy Pipeline (G.4.5)" {
+    [StrategyOptimizer\n(G.4.5.5)] as Optimizer
+    [RankingResult\n(Authoritative Ranking)] as RankingRes
+    [SimulationResult\n(Stints & Pits)] as SimRes
+}
+
+package "View-Model Transformation Layer (G.4.6.1)" {
+    [StrategyDashboardAdapter] as Adapter
+}
+
+package "Presentation & Timeline UI Layer (G.4.6.4)" {
+    [Selected Scenario ID\n(st.session_state)] as SessionState
+    [prepare_stint_timeline_data] as ViewPrep
+    
+    package "Stint Timeline Presentation" {
+        [Summary KPI Header] as SummaryHeader
+        [Gantt Stint Timeline Visual] as GanttChart
+        [Compound Transition Table] as TransitionTable
+    }
+}
+
+Optimizer --> RankingRes : Produces Top-K
+RankingRes --> Adapter : Consumed Read-Only
+SimRes --> Adapter : Supplies Stint & Pit Summaries
+
+SessionState --> ViewPrep : Passes scenario_id
+Adapter --> ViewPrep : Supplies stint & pit DataFrames
+
+ViewPrep --> SummaryHeader : Render KPIs
+ViewPrep --> GanttChart : Render Start/End Laps & Compounds
+ViewPrep --> TransitionTable : Render Stint Laps & Pit Transitions
+
+note right of ViewPrep
+  **READ-ONLY PRESENTATION**
+  * NO Sensitivity Analysis
+  * NO Monte Carlo Analysis
+  * NO Re-ranking / Scoring
+  * NO Simulation Rerun
+  * NO Constraint Re-validation
+  * NO Optimization
+  * NO ML / LLM
+end note
+
+@enduml

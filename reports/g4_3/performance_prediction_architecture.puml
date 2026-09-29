@@ -1,0 +1,77 @@
+@startuml Performance_Prediction_Architecture
+skinparam backgroundColor #FFFFFF
+skinparam componentStyle uml2
+
+package "Data Engineering Input" {
+    [Silver Telemetry Parquet] as Silver
+}
+
+package "Target Construction" {
+    [construct_lap_target_dataset()] as TargetBuilder
+    [Lap Records & Target (lap_time_sec)] as Laps
+}
+
+package "Pre-Lap Feature Engineering" {
+    [compute_pre_lap_features()] as FeatureEngine
+    [Historic Performance] as FeatPerf
+    [Pre-Lap Tyre / Aero / Powertrain] as FeatEng
+    [Rolling Temporal Features] as FeatTemp
+}
+
+package "Data Pipeline & Preprocessing" {
+    [perform_temporal_split()] as Splitter
+    [Train Partition (70%)] as Train
+    [Validation Partition (15%)] as Val
+    [Test Partition (15%)] as Test
+    [StandardScaler (Train Fit Only)] as Scaler
+}
+
+package "Model Architecture & Training" {
+    [Mean Baseline] as Base1
+    [Previous-Lap Baseline] as Base2
+    [RandomForestRegressor] as RF
+    [GradientBoostingRegressor] as GBR
+}
+
+package "Evaluation & Export" {
+    [evaluate_regression_models()] as Evaluator
+    [Model Selection on Validation] as Selector
+    [lap_predictions Parquet (Local / MinIO)] as Output
+    [Model Artifacts (best_model.joblib)] as Artifacts
+}
+
+Silver --> TargetBuilder
+TargetBuilder --> Laps
+Laps --> FeatureEngine
+Silver --> FeatureEngine
+
+FeatureEngine --> FeatPerf
+FeatureEngine --> FeatEng
+FeatureEngine --> FeatTemp
+
+FeatPerf --> Splitter
+FeatEng --> Splitter
+FeatTemp --> Splitter
+
+Splitter --> Train
+Splitter --> Val
+Splitter --> Test
+
+Train --> Scaler
+Scaler --> RF
+Scaler --> GBR
+
+Train --> Base1
+Train --> Base2
+
+RF --> Evaluator
+GBR --> Evaluator
+Base1 --> Evaluator
+Base2 --> Evaluator
+
+Val --> Evaluator
+Evaluator --> Selector
+Selector --> Output
+Selector --> Artifacts
+
+@enduml

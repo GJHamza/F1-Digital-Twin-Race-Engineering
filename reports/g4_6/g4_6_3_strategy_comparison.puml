@@ -1,0 +1,60 @@
+@startuml g4_6_3_strategy_comparison
+title Strategy Comparison & Trade-off Analysis Architecture (G.4.6.3)
+
+skinparam componentStyle uml2
+skinparam backgroundColor #FFFFFF
+skinparam packageBackgroundColor #F8FAFC
+skinparam componentBackgroundColor #FFFFFF
+skinparam componentBorderColor #0F172A
+
+package "Authoritative Strategy Pipeline (G.4.5)" {
+    [StrategyOptimizer\n(G.4.5.5)] as Optimizer
+    [RankingResult\n(Authoritative Ranking)] as RankingRes
+}
+
+package "View-Model Transformation Layer (G.4.6.1)" {
+    [StrategyDashboardAdapter] as Adapter
+}
+
+package "Presentation & Trade-off UI Layer (G.4.6.3)" {
+    [Strategy Leaderboard\n(G.4.6.2)] as Leaderboard
+    [Selected Scenario IDs\n(st.session_state)] as SessionState
+    [prepare_comparison_view_data] as ViewPrep
+    
+    package "Trade-off Visualizations" {
+        [Race Time vs Fuel] as ChartFuel
+        [Race Time vs Tire Wear] as ChartWear
+        [Race Time vs Pit Stops] as ChartPit
+        [Stint & Compound Distribution] as ChartStint
+        [Fuel Trajectory] as ChartFuelTraj
+        [Tire Wear Trajectory] as ChartWearTraj
+    }
+}
+
+Optimizer --> RankingRes : Produces Top-K
+RankingRes --> Adapter : Consumed Read-Only
+
+Adapter --> Leaderboard : Supplies Leaderboard DF
+Leaderboard --> SessionState : Exposes selected_scenario_id
+
+SessionState --> ViewPrep : Passes scenario_ids (Max 4)
+Adapter --> ViewPrep : Supplies metrics, stint & lap DF
+
+ViewPrep --> ChartFuel : Render
+ViewPrep --> ChartWear : Render
+ViewPrep --> ChartPit : Render
+ViewPrep --> ChartStint : Render
+ViewPrep --> ChartFuelTraj : Render
+ViewPrep --> ChartWearTraj : Render
+
+note right of ViewPrep
+  **PRESENTATION ONLY**
+  * NO Re-ranking
+  * NO Simulation
+  * NO Constraint Validation
+  * NO Optimization
+  * NO ML / LLM
+  * NO Database / API
+end note
+
+@enduml

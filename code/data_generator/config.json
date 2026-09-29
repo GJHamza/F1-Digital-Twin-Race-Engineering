@@ -1,0 +1,55 @@
+{
+  "generator_version": "2.0.0",
+  "schema_version": "1.0",
+  "default_cars": [
+    {
+      "car_id": "SIM-CAR-01",
+      "car_name": "AERO PHANTOM",
+      "team": "WILLIAMS",
+      "driver_id": "SIM-DRV-01",
+      "driver_name": "Alex Albon (Sim)",
+      "base_mass": 798.0,
+      "base_drag": 0.32,
+      "base_downforce": 50
+    },
+    {
+      "car_id": "SIM-CAR-02",
+      "car_name": "NEON STRIKER",
+      "team": "McLAREN",
+      "driver_id": "SIM-DRV-02",
+      "driver_name": "Lando Norris (Sim)",
+      "base_mass": 798.0,
+      "base_drag": 0.31,
+      "base_downforce": 55
+    },
+    {
+      "car_id": "SIM-CAR-03",
+      "car_name": "TITAN X",
+      "team": "RED BULL",
+      "driver_id": "SIM-DRV-03",
+      "driver_name": "Max Verstappen (Sim)",
+      "base_mass": 798.0,
+      "base_drag": 0.30,
+      "base_downforce": 60
+    },
+    {
+      "car_id": "SIM-CAR-04",
+      "car_name": "ECLIPSE RS",
+      "team": "MERCEDES",
+      "driver_id": "SIM-DRV-04",
+      "driver_name": "Lewis Hamilton (Sim)",
+      "base_mass": 798.0,
+      "base_drag": 0.315,
+      "base_downforce": 52
+    }
+  ],
+  "track": {
+    "name": "F1 Digital Twin Oval Ring",
+    "lap_distance_m": 4800.0,
+    "sectors": [
+      {"number": 1, "start_pct": 0.0, "end_pct": 33.33},
+      {"number": 2, "start_pct": 33.33, "end_pct": 66.66},
+      {"number": 3, "start_pct": 66.66, "end_pct": 100.0}
+    ]
+  }
+}

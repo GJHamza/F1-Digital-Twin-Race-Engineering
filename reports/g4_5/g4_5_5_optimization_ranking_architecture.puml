@@ -1,0 +1,46 @@
+@startuml g4_5_5_optimization_ranking_architecture
+!theme plain
+skinparam componentStyle uml2
+skinparam packageStyle rectangle
+
+title F1 Digital Twin — G.4.5.5 Strategy Optimization & Ranking Architecture
+
+package "Upstream Pipeline (G.4.5.1 – G.4.5.4)" {
+    [ScenarioGenerator] --> [Scenario] : 1. candidate strategy
+    [Scenario] --> [RacePaceSimulator] : 2. simulation payload
+    [RacePaceSimulator] --> [SimulationResult] : 3. simulation metrics
+    [ConstraintValidator] --> [ValidationResult] : 4. feasibility & violations
+}
+
+package "G.4.5.5 Optimization & Ranking Engine" {
+    component "Strategy Optimizer\n(StrategyOptimizer)" as Optimizer
+
+    package "Optimization Pipeline Stages" {
+        component "Hard Constraint Filter\n(valid == True)" as Filter
+        component "Lexicographic Multi-Objective Ranker\n(Deterministic Sorting)" as Ranker
+        component "Top-K Selector & Delta Calculator\n(heapq / Full Sort)" as TopK
+    }
+}
+
+package "Ranking Outputs & Artifacts" {
+    database "Ranking Result\n(RankingResult)" as Result
+    component "Top-K Ranked Strategies\n(List[RankedStrategy])" as RankedList
+}
+
+package "Future Downstream Phase (G.5)" {
+    component "Race Engineering Dashboard\n& Decision Support UI" as Dashboard
+}
+
+[SimulationResult] --> Optimizer : input metrics
+[ValidationResult] --> Optimizer : feasibility status
+[Scenario] --> Optimizer : canonical key & metadata
+
+Optimizer --> Filter : 1. filter invalid candidates
+Filter --> Ranker : 2. valid candidates pool
+Ranker --> TopK : 3. sorted candidates
+TopK --> Result : 4. constructs immutable result
+Result --> RankedList : contains top-K strategies with explanations
+
+Result --> Dashboard : feeds ranked strategy recommendations
+
+@enduml

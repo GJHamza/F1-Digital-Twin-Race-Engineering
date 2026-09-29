@@ -1,0 +1,56 @@
+@startuml g4_6_6_architecture
+title Strategy Details & Validation Architecture (G.4.6.6)
+
+skinparam componentStyle uml2
+skinparam backgroundColor #FFFFFF
+skinparam packageBackgroundColor #F8FAFC
+skinparam componentBackgroundColor #FFFFFF
+skinparam componentBorderColor #0F172A
+
+package "Authoritative Strategy Pipeline (G.4.5)" {
+    [ValidationResult\n(G.4.5.4 Violations & Warnings)] as ValRes
+    [Scenario & RaceConfig\n(G.4.5.2 Specification & Metadata)] as ScenConfig
+    [SimulationResult\n(G.4.5.3 Lap-by-Lap Telemetry Trace)] as SimTrace
+    [RankingResult\n(G.4.5.5 Strategy Top-K Output)] as RankRes
+}
+
+package "View-Model Transformation Layer (G.4.6.1)" {
+    [StrategyDashboardAdapter] as Adapter
+}
+
+package "Presentation UI Layer (G.4.6.6)" {
+    [Selected Scenario ID\n(st.session_state)] as SessionState
+    [prepare_strategy_details_view_data] as ViewPrep
+    
+    package "Strategy Details & Validation Cockpit" {
+        [1. Validation & Constraint Audit Panel\n(Hard Violations, Warnings, Rule Compliance)] as ValPanel
+        [2. Strategy Identity & Race Config Inspector\n(Race ID, Total Laps, Init Fuel, Pit Loss)] as ConfigPanel
+        [3. Simulation Assumptions Audit\n(Tire wear limits, Min stint laps, Fuel burn rules)] as AssumptionsPanel
+        [4. Interactive Lap-by-Lap Execution Trace\n(Per-lap telemetry table & lap range filters)] as LapTracePanel
+    }
+}
+
+RankRes --> Adapter : Read-Only Ranking
+ValRes --> Adapter : Read-Only Validation
+ScenConfig --> Adapter : Read-Only Config
+SimTrace --> Adapter : Read-Only Lap Records
+
+SessionState --> ViewPrep : Selected scenario_id
+Adapter --> ViewPrep : Extracts validation_dataframe,\nscenarios, & lap_dataframe
+
+ViewPrep --> ValPanel : Renders Violations & Warnings
+ViewPrep --> ConfigPanel : Renders Race Parameters
+ViewPrep --> AssumptionsPanel : Renders Upstream Assumptions
+ViewPrep --> LapTracePanel : Renders Filtered Telemetry Trace
+
+note right of ViewPrep
+  **READ-ONLY PRESENTATION LAYER**
+  * NO re-validation of rules
+  * NO re-simulation of physics
+  * NO re-ranking or optimization
+  * NO Monte Carlo or Sensitivity Analysis
+  * NO ML / LLM logic
+  * Single-strategy inspection target
+end note
+
+@enduml

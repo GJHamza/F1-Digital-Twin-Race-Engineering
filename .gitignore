@@ -1,0 +1,35 @@
+# Environment & Secret Files
+.env
+.env.*
+*.env
+credentials
+*.pem
+*.key
+
+# Python & Cache Files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.coverage
+htmlcov/
+*.egg-info/
+dist/
+build/
+
+# Logs & Temporary Scratch Files
+*.log
+scratch/
+tmp/
+.tempmediaStorage/
+
+# IDE & OS Files
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+node_modules/
+
+data/generated/medium.jsonl
+data/generated/large.jsonl

@@ -1,0 +1,62 @@
+[
+  {
+    "Backend": "LOCAL",
+    "Dataset": "SMALL",
+    "Events": 1500,
+    "Bronze (s)": 0.157,
+    "Silver (s)": 0.427,
+    "Gold (s)": 0.223,
+    "Total (s)": 0.807,
+    "Throughput (evt/s)": 1858.74
+  },
+  {
+    "Backend": "MINIO S3A",
+    "Dataset": "SMALL",
+    "Events": 1500,
+    "Bronze (s)": 0.44,
+    "Silver (s)": 0.717,
+    "Gold (s)": 0.736,
+    "Total (s)": 1.893,
+    "Throughput (evt/s)": 792.39
+  },
+  {
+    "Backend": "LOCAL",
+    "Dataset": "MEDIUM",
+    "Events": 60000,
+    "Bronze (s)": 4.156,
+    "Silver (s)": 12.085,
+    "Gold (s)": 5.442,
+    "Total (s)": 21.683,
+    "Throughput (evt/s)": 2767.14
+  },
+  {
+    "Backend": "MINIO S3A",
+    "Dataset": "MEDIUM",
+    "Events": 60000,
+    "Bronze (s)": 5.494,
+    "Silver (s)": 11.898,
+    "Gold (s)": 4.491,
+    "Total (s)": 21.883,
+    "Throughput (evt/s)": 2741.85
+  },
+  {
+    "Backend": "LOCAL",
+    "Dataset": "LARGE",
+    "Events": 600000,
+    "Bronze (s)": 51.381,
+    "Silver (s)": 137.056,
+    "Gold (s)": 47.129,
+    "Total (s)": 235.566,
+    "Throughput (evt/s)": 2547.06
+  },
+  {
+    "Backend": "MINIO S3A",
+    "Dataset": "LARGE",
+    "Events": 600000,
+    "Bronze (s)": 62.802,
+    "Silver (s)": 142.828,
+    "Gold (s)": 46.037,
+    "Total (s)": 251.667,
+    "Throughput (evt/s)": 2384.1
+  }
+]

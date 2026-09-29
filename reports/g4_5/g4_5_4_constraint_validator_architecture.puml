@@ -1,0 +1,56 @@
+@startuml g4_5_4_constraint_validator_architecture
+!theme plain
+skinparam componentStyle uml2
+skinparam packageStyle rectangle
+
+title F1 Digital Twin — G.4.5.4 Strategy Constraint Validator Architecture
+
+package "G.4.5.2 & G.4.5.3 Pipeline" {
+    [ScenarioGenerator] --> [Scenario] : produces
+    [Scenario] --> [RacePaceSimulator] : adapted payload
+    [RacePaceSimulator] --> [SimulationResult] : outputs
+}
+
+package "G.4.5.4 Constraint Validator Engine" {
+    component "Constraint Validator\n(ConstraintValidator)" as Validator
+    
+    package "Sub-Validators (O(N) Read-Only Rules)" {
+        component "Fuel Validator" as FuelVal
+        component "Tire Wear Validator" as TireVal
+        component "Stint Timeline Validator" as StintVal
+        component "Pit Stop Validator" as PitVal
+        component "Compound Policy Validator" as CompVal
+        component "Race Distance Validator" as DistVal
+        component "Lap Result Validator" as LapVal
+        component "Consistency Validator" as ConsVal
+    }
+}
+
+package "Validation Outputs" {
+    database "Validation Result\n(ValidationResult)" as ValResult
+    component "Structured Violations\n(List[Violation])" as Violations
+}
+
+package "Downstream Strategy Pipeline" {
+    component "G.4.5.5 Strategy Optimizer\n& Evaluator" as Optimizer
+}
+
+[SimulationResult] --> Validator : passes simulation results
+[RaceConfig] --> Validator : passes race configuration
+[ScenarioConstraints] --> Validator : passes constraint parameters
+
+Validator --> FuelVal : 1. check_fuel_constraints()
+Validator --> TireVal : 2. check_tire_constraints()
+Validator --> StintVal : 3. check_stint_timeline()
+Validator --> PitVal : 4. check_pit_stops()
+Validator --> CompVal : 5. check_compound_policies()
+Validator --> DistVal : 6. check_race_distance()
+Validator --> LapVal : 7. check_lap_records()
+Validator --> ConsVal : 8. check_simulation_consistency()
+
+Validator --> ValResult : constructs
+ValResult --> Violations : contains deterministic violations
+
+ValResult --> Optimizer : filters feasible strategies (valid == True)
+
+@enduml

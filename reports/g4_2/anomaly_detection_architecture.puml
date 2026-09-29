@@ -1,0 +1,48 @@
+@startuml
+title F1 Digital Twin — Phase G.4.2 Telemetry Anomaly Detection Architecture
+
+skinparam componentStyle uml2
+skinparam backgroundColor #FFFFFF
+
+package "ML Feature Storage (code/ml/)" {
+  [Train Partition\n(train/)] as TrainPart
+  [Validation Partition\n(validation/)] as ValPart
+  [Test Partition\n(test/)] as TestPart
+}
+
+package "Model Training Engine (Fit on Train ONLY)" {
+  [StandardScaler Preprocessor] as Scaler
+  [Z-Score Baseline Detector] as BaselineModel
+  [Isolation Forest Model\n(n_estimators=100, contamination=0.05)] as IsoForest
+}
+
+package "Calibration & Scoring Engine" {
+  [Score Calibrator & Severity Mapper\n(Quantiles fit on Validation)] as Calibrator
+  [Signal Deviation Explainer\n(Top 3 Z-score signals)] as Explainer
+}
+
+package "Anomaly Storage (code/ml/anomaly/)" {
+  [MinIO S3A / Anomalies Lake\n(s3a://f1-data-lake/ml/anomalies/)] as AnomalyStorage
+  folder "Train Anomalies" as OutTrain
+  folder "Validation Anomalies" as OutVal
+  folder "Test Anomalies" as OutTest
+}
+
+TrainPart --> Scaler : Fit Scaled Features
+TrainPart --> BaselineModel : Fit Z-score Baseline Means/Stds
+TrainPart --> IsoForest : Fit Isolation Forest Model
+
+ValPart --> Calibrator : Calibrate Severity Quantiles\n(NORMAL, LOW, MEDIUM, HIGH)
+
+TestPart --> Scaler : Transform Features (No Fit)
+Scaler --> IsoForest : Predict Raw Decision Scores
+IsoForest --> Calibrator : Normalize [0, 1] & Map Severity
+Scaler --> Explainer : Compute Top 3 Deviating Signals
+
+Calibrator --> OutTest : Write Parquet Outputs\n(anomaly_score, label, severity)
+Explainer --> OutTest : Append contributing_signals JSON
+OutTrain --> AnomalyStorage
+OutVal --> AnomalyStorage
+OutTest --> AnomalyStorage
+
+@enduml

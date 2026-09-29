@@ -1,0 +1,43 @@
+@startuml
+title F1 Digital Twin — Phase G.3.4 Incremental Streaming ETL Architecture
+
+skinparam componentStyle uml2
+skinparam backgroundColor #FFFFFF
+
+package "Ingestion & Streaming Storage" {
+  [Kafka Topic: f1_telemetry] as Kafka
+  [PySpark Structured Streaming] as StreamingEngine
+  [MinIO S3A / Bronze Lake] as Bronze
+}
+
+package "Silver Incremental Transformer" {
+  [State Manifest Engine] as StateManifest
+  [Schema V1 Validation] as SchemaVal
+  [Deduplication Engine] as Deduper
+  [Derived Metrics Calculator] as MetricsEngine
+  [MinIO S3A / Silver Lake] as Silver
+  [MinIO S3A / Quarantine Lake] as Quarantine
+}
+
+package "Gold Incremental Builder" {
+  [Incremental Aggregator] as Aggregator
+  [MinIO S3A / Gold Lake] as Gold
+}
+
+Kafka --> StreamingEngine : Raw JSON Stream
+StreamingEngine --> Bronze : Micro-batch Parquet Writes\n(Partitioned: year/month/day/hour)
+
+Bronze --> StateManifest : Delta Detection\n(New file paths)
+StateManifest --> SchemaVal : Validate New Records
+SchemaVal --> Deduper : Filter Duplicate event_ids\n(State manifest seen_event_ids)
+
+Deduper --> Quarantine : Invalid & Duplicate Events\n(s3a://f1-data-lake/quarantine/telemetry/)
+Deduper --> MetricsEngine : Valid New Records
+
+MetricsEngine --> Silver : Enriched Parquet Writes\n(speed_ms, aero_efficiency, tire_stress_index, acceleration_estimate)
+Silver --> StateManifest : Update state.json Manifest\n(processed_files & seen_event_ids)
+
+Silver --> Aggregator : Read Incremental Silver Parquet
+Aggregator --> Gold : Re-aggregate 5 Gold Datasets\n(lap_performance, tire_performance, fuel_performance, aero_performance, anomaly_summary)
+
+@enduml

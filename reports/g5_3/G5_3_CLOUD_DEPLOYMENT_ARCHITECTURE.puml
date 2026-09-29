@@ -1,0 +1,53 @@
+@startuml G5_3_CLOUD_DEPLOYMENT_ARCHITECTURE
+!theme vibrant
+title F1 Digital Twin — Target Cloud & Container Deployment Topology (G.5.3 Proposal)
+
+skinparam componentStyle uml2
+skinparam rectangleStyle round
+
+package "Public Client Layer (Browser Ingress)" #F4ECF7 {
+    [Three.js Interactive Simulator] as SimBrowser #LightBlue
+    [React Cockpit Frontend (Vite Build)] as ReactCockpit #LightBlue
+    [Streamlit Strategy Dashboard] as StreamlitUI #LightGreen
+}
+
+package "Containerized Application Layer (Docker Network: f1-net)" #EAFAF1 {
+    [Flask API Gateway Container (gunicorn/gevent)] as FlaskContainer #LightGreen
+    [ML Bridge Consumer Container (ml_bridge_consumer.py)] as MLBridgeContainer #LightGreen
+    [Kafka Data Engine Consumer Container (data_engine.py)] as DataEngineContainer #LightGreen
+    [Streamlit Dashboard Container (GAP-04 Target)] as StreamlitContainer #LightGreen
+}
+
+package "Infrastructure & Storage Services" #FEF9E7 {
+    [Apache Kafka Broker Container (9092 / 29092)] as KafkaBroker #Yellow
+    [Zookeeper Coordinator Container (2181)] as Zookeeper #Yellow
+    [MinIO Object Storage Container (9000 / 9001)] as MinIO #Yellow
+    [MongoDB Atlas (Cloud Managed DB)] as MongoAtlas #Yellow
+}
+
+' Ingress Connections
+SimBrowser --> FlaskContainer : "HTTP POST /telemetry (Port 5000)"
+ReactCockpit --> FlaskContainer : "HTTP GET /setup, /telemetry"
+StreamlitUI --> StreamlitContainer : "HTTP Browser Access (Port 8501)"
+
+' Containerized Service Interconnections
+FlaskContainer --> KafkaBroker : "Publish Raw Telemetry -> f1_telemetry"
+MLBridgeContainer --> KafkaBroker : "Consume f1_telemetry / Publish f1_ml_signals"
+DataEngineContainer --> KafkaBroker : "Consume f1_telemetry"
+
+DataEngineContainer --> MongoAtlas : "Persist Raw Telemetry"
+FlaskContainer --> MongoAtlas : "Query / Save Car Settings"
+
+StreamlitContainer --> MinIO : "Read Parquet Features / Data Lake"
+MLBridgeContainer --> MinIO : "[Optional] Read Pre-trained ML Artifacts"
+
+' Infrastructure Coordination
+KafkaBroker --> Zookeeper : "Coordination"
+
+legend right
+  |<back:#LightGreen>  </back>| Containerized Application Service (Target G.5.3) |
+  |<back:#Yellow>  </back>| Infrastructure / Storage Container |
+  |<back:#LightBlue>  </back>| Public Frontend / Web Client |
+endlegend
+
+@enduml
