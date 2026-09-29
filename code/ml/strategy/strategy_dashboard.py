@@ -8,7 +8,7 @@ without re-ranking or mutating upstream domain objects.
 """
 
 import math
-from typing import Dict, Any, Optional, List, Sequence
+from typing import Dict, Any, Optional, List, Sequence, Tuple
 import pandas as pd
 import streamlit as st
 import plotly.express as px
