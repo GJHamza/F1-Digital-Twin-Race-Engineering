@@ -26,6 +26,8 @@ jobs:
           pip install -r requirements.txt
 
       - name: Execute Full PyTest Suite
+        env:
+          PYTHONPATH: "code:."
         run: |
           python -m pytest --ignore=code/partie4/node_modules
 
