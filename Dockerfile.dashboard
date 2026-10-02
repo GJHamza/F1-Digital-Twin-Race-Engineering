@@ -15,7 +15,6 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY code/ /app/code/
-COPY schema/ /app/schema/
 COPY data_lake/ /app/data_lake/
 
 RUN useradd -m -u 1000 f1user && chown -R f1user:f1user /app

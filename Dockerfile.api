@@ -31,7 +31,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application source code
 COPY code/ /app/code/
-COPY schema/ /app/schema/
 
 # Copy compiled React cockpit frontend assets from Stage 1 into Flask static directory
 COPY --from=frontend-builder /app/frontend/dist/ /app/code/partie1/cockpit/
