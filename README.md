@@ -12,6 +12,34 @@ Engineers and race strategists interact with the platform through a 3D Three.js/
 
 ---
 
+## Visual Showcase
+
+### 3D Digital Twin Simulation
+
+The interactive WebGL Digital Twin provides a real-time visualization of the simulated F1 vehicle, telemetry HUD, vehicle dynamics and environmental conditions.
+
+![F1 Digital Twin 3D Simulation](docs/screenshots/01_digital_twin_3d_simulation.png)
+
+### React 19 Race Engineering Cockpit
+
+The production React 19 cockpit provides a real-time engineering interface for telemetry monitoring, tyre status and vehicle setup controls.
+
+![React 19 Race Engineering Cockpit](docs/screenshots/02_react_19_cockpit_frontend.png)
+
+### Race Strategy Engineering Dashboard
+
+The Streamlit strategy dashboard exposes deterministic strategy optimization, candidate ranking, stint allocation and race-time trade-offs.
+
+![Race Strategy Engineering Dashboard](docs/screenshots/03_streamlit_race_strategy_engineering.png)
+
+### Real-Time Telemetry & Performance Analytics
+
+The telemetry dashboard provides engineering KPIs, four-corner tyre diagnostics, vehicle performance analysis and GPS track visualization.
+
+![Real-Time Telemetry Analytics](docs/screenshots/04_streamlit_realtime_telemetry_analytics.png)
+
+---
+
 ## Architecture
 
 ```mermaid
