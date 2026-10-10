@@ -33,7 +33,7 @@ load_dotenv(dotenv_path=os.path.join(PROJECT_ROOT, '.env'))
 st.set_page_config(
     page_title="F1 Digital Twin — Race Engineering Platform",
     layout="wide",
-    page_icon="⚙️",
+    page_icon="🏎️",
     initial_sidebar_state="expanded",
 )
 

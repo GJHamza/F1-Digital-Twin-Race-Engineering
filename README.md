@@ -38,6 +38,29 @@ The telemetry dashboard provides engineering KPIs, four-corner tyre diagnostics,
 
 ![Real-Time Telemetry Analytics](docs/screenshots/04_streamlit_realtime_telemetry_analytics.png)
 
+### End-to-End Race Trial Simulation
+
+The end-to-end race trial simulation demonstrates real-time telemetry streaming, active lap timing, vehicle dynamics and strategy execution.
+
+![Race Trial Simulation](docs/screenshots/05_race_trial_simulation.png)
+
+---
+
+## 🎥 Project Demo
+
+The end-to-end platform demonstration highlights the complete race engineering workflow across five integrated phases:
+1. **3D WebGL Digital Twin Simulation** — Vehicle dynamics, wind tunnel testing, rolling road dyno & cockpit controls.
+2. **Telemetry Ingestion & Pipeline** — Vehicle telemetry schema validation & event streaming.
+3. **Streamlit Analytics & Diagnostics** — 4-corner tyre temperature/pressure tracking, radar performance index & GPS track visualization.
+4. **Machine Learning Predictive Models** — XGBoost lap-time estimation, tyre wear degradation curves & Isolation Forest anomaly detection.
+5. **Deterministic Strategy Optimizer (G.4.5)** — Lexicographic multi-objective ranking, stint timeline allocation & pit stop trade-off analysis.
+
+### Video Demonstration
+- 🎬 [▶ Watch the Web-Optimized Project Demo (24 MB MP4)](docs/demo/F1_Digital_Twin_Project_Demo_Optimized.mp4) — *Recommended for repository hosting & browser streaming*
+- 📁 [▶ Master Archive Demo Video (107 MB MP4)](docs/demo/F1_Digital_Twin_Project_Demo.mp4) — *Full master recording*
+
+*Note: You can download or stream the MP4 video directly from the `docs/demo/` directory.*
+
 ---
 
 ## Architecture
