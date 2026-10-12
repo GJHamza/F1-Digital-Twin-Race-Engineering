@@ -57,7 +57,7 @@ The end-to-end platform demonstration highlights the complete race engineering w
 
 ### Video Demonstration
 - 🎬 [▶ Watch the Web-Optimized Project Demo (24 MB MP4)](docs/demo/F1_Digital_Twin_Project_Demo_Optimized.mp4) — *Recommended for repository hosting & browser streaming*
-- 📁 [▶ Master Archive Demo Video (107 MB MP4)](docs/demo/F1_Digital_Twin_Project_Demo.mp4) — *Full master recording*
+- 📁 **Master Archive Demo Video (107 MB MP4):** Preserved locally; excluded from the public repository.
 
 *Note: You can download or stream the MP4 video directly from the `docs/demo/` directory.*
 
